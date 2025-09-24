@@ -1,226 +1,272 @@
-/* Reset and base styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* CSS Variables for Theming based on Google's colors */
+:root {
+    --google-blue: #4285f4;
+    --google-green: #34a853;
+    --google-yellow: #f9ab00;
+    --google-red: #ea4335;
+    
+    /* Light Theme */
+    --light-bg: #f8f9fa;
+    --light-card-bg: #ffffff;
+    --light-text: #202124;
+    --light-text-secondary: #5f6368;
+    --light-border: #dadce0;
+    --light-shadow: 0 4px 6px rgba(32, 33, 36, 0.08);
+
+    /* Dark Theme */
+    --dark-bg: #1e1e1e;
+    --dark-card-bg: #2d2d2d;
+    --dark-text: #e8eaed;
+    --dark-text-secondary: #9aa0a6;
+    --dark-border: #3c4043;
+    --dark-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+
+    /* Default Theme (Light) */
+    --bg-color: var(--light-bg);
+    --card-bg-color: var(--light-card-bg);
+    --text-color: var(--light-text);
+    --text-secondary-color: var(--light-text-secondary);
+    --border-color: var(--light-border);
+    --shadow: var(--light-shadow);
+    --transition-speed: 0.3s;
 }
 
+.dark-mode {
+    --bg-color: var(--dark-bg);
+    --card-bg-color: var(--dark-card-bg);
+    --text-color: var(--dark-text);
+    --text-secondary-color: var(--dark-text-secondary);
+    --border-color: var(--dark-border);
+    --shadow: var(--dark-shadow);
+}
+
+/* General Body Styles */
 body {
-    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-family: 'Google Sans', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
     padding: 20px;
-    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
+/* Main Container */
 .container {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 40px 30px;
-    max-width: 400px;
     width: 100%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    max-width: 680px;
     text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Profile section */
-.profile {
-    margin-bottom: 40px;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.logo {
-    margin-bottom: 20px;
-}
-
-.gdg-logo {
+/* Theme Toggle Switch */
+.theme-switch {
     display: inline-block;
-    font-size: 48px;
-    font-weight: 700;
-    letter-spacing: -2px;
+    height: 24px;
+    position: relative;
+    width: 44px;
 }
 
-.g1 {
-    color: #4285f4; /* Google Blue */
+.theme-switch input {
+    display: none;
 }
 
-.d {
-    color: #ea4335; /* Google Red */
+.slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    border-radius: 34px;
 }
 
-.g2 {
-    color: #34a853; /* Google Green */
+.slider:before {
+    background-color: #fff;
+    bottom: 2px;
+    content: "";
+    height: 20px;
+    left: 2px;
+    position: absolute;
+    transition: .4s;
+    width: 20px;
+    border-radius: 50%;
 }
 
-h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: #202124;
-    margin-bottom: 8px;
+input:checked + .slider {
+    background-color: var(--google-blue);
 }
 
-.subtitle {
-    font-size: 16px;
-    color: #5f6368;
-    margin-bottom: 12px;
-    font-weight: 400;
+input:checked + .slider:before {
+    transform: translateX(20px);
 }
 
-.description {
-    font-size: 14px;
-    color: #80868b;
-    max-width: 320px;
-    margin: 0 auto;
-    line-height: 1.5;
+/* Banner and Profile Image */
+.profile-header {
+    background-color: var(--card-bg-color);
+    border-radius: 16px;
+    padding-bottom: 50px;
+    position: relative;
+    margin-bottom: 70px; /* Space for the profile picture */
+    box-shadow: var(--shadow);
+    transition: background-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
 }
 
-/* Links section */
+.banner {
+    width: 100%;
+    /* Using padding-bottom to maintain aspect ratio (499 / 1440 * 100) */
+    padding-bottom: 34.65%; 
+    height: 0;
+    background-color: #e0e0e0;
+    /* Replace with your banner image URL */
+    background-image: url(banner.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 16px 16px 0 0;
+}
+
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: var(--light-bg);
+    border: 5px solid var(--bg-color);
+    position: absolute;
+    bottom: -50px; /* Halfway out */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: border-color var(--transition-speed) ease;
+    overflow: hidden; /* Ensures the image doesn't spill out */
+}
+
+.profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This will cover the area, cropping if necessary */
+}
+
+/* Profile Info */
+.profile-info {
+    padding: 20px;
+}
+
+.profile-info h1 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    transition: color var(--transition-speed) ease;
+}
+
+.profile-info .subtitle {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-secondary-color);
+    transition: color var(--transition-speed) ease;
+}
+
+/* Links Section */
 .links {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-bottom: 32px;
+    margin-top: 20px;
 }
 
 .link-button {
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 16px 20px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding: 16px 24px;
-    border-radius: 12px;
-    text-decoration: none;
     font-weight: 500;
-    font-size: 16px;
-    transition: all 0.3s ease;
+    font-size: 1rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
     position: relative;
     overflow: hidden;
+    animation: slideUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.link-button:nth-child(1) { animation-delay: 0.1s; }
+.link-button:nth-child(2) { animation-delay: 0.2s; }
+.link-button:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .link-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 12px rgba(32, 33, 36, 0.12);
 }
 
-.link-button:active {
-    transform: translateY(0);
+.dark-mode .link-button:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.icon {
+.link-button .icon {
     width: 24px;
     height: 24px;
-    flex-shrink: 0;
 }
 
-/* Instagram styling */
-.instagram {
-    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    color: white;
+/* Specific Link Colors on Hover */
+.link-button.instagram:hover {
+    background-color: #e1306c; color: white;
 }
-
-.instagram:hover {
-    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    filter: brightness(1.1);
+.link-button.linkedin:hover {
+    background-color: #0A66C2; color: white;
 }
-
-/* LinkedIn styling */
-.linkedin {
-    background: #0077b5;
-    color: white;
-}
-
-.linkedin:hover {
-    background: #005885;
-}
-
-/* WhatsApp styling */
-.whatsapp {
-    background: #25d366;
-    color: white;
-}
-
-.whatsapp:hover {
-    background: #1db954;
+.link-button.whatsapp:hover {
+    background-color: #25D366; color: white;
 }
 
 /* Footer */
 .footer {
-    text-align: center;
-    font-size: 12px;
-    color: #80868b;
-    border-top: 1px solid rgba(128, 134, 139, 0.2);
-    padding-top: 20px;
-}
-
-/* Responsive design */
-@media (max-width: 480px) {
-    .container {
-        margin: 10px;
-        padding: 30px 20px;
-    }
-    
-    .gdg-logo {
-        font-size: 40px;
-    }
-    
-    h1 {
-        font-size: 24px;
-    }
-    
-    .link-button {
-        padding: 14px 20px;
-        font-size: 15px;
-    }
-    
-    .icon {
-        width: 22px;
-        height: 22px;
-    }
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.container {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-.link-button:nth-child(1) {
-    animation: fadeInUp 0.8s ease-out;
-}
-
-.link-button:nth-child(2) {
-    animation: fadeInUp 1.0s ease-out;
-}
-
-.link-button:nth-child(3) {
-    animation: fadeInUp 1.2s ease-out;
-}
-
-/* Hover effects */
-.link-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
+    margin-top: 40px;
+    padding: 20px 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary-color);
+    transition: color var(--transition-speed) ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
 }
 
-.link-button:hover::before {
-    left: 100%;
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
+
+#theme-mode-text {
+    font-weight: 500;
+    color: var(--text-secondary-color);
+    transition: color var(--transition-speed) ease;
+}
+
+.copyright {
+    margin: 0;
+}
+
