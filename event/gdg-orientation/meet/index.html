@@ -7,10 +7,11 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+     <link rel="icon" type="image/x-icon" href="/favicon.png"> 
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Open Graph Meta Tags -->
@@ -30,7 +31,6 @@
             justify-content: center;
             min-height: 100vh;
             text-align: center;
-            padding-bottom: 80px; /* Add padding to prevent footer from overlapping content */
         }
         .btn {
             transition: all 0.2s ease-in-out;
@@ -49,9 +49,6 @@
         }
         .countdown-segment {
             font-variant-numeric: tabular-nums;
-        }
-        #redirect-footer {
-            transition: transform 0.5s ease-out;
         }
     </style>
 </head>
@@ -106,26 +103,20 @@
         </footer>
     </main>
 
-    <!-- Fixed Footer for Redirect -->
-    <div id="redirect-footer" class="fixed bottom-0 left-0 right-0 bg-blue-600 text-white p-3 text-center shadow-lg transform translate-y-full">
-        <p id="footer-redirect-message"></p>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Set the event date and time (29th September 2025, 4:55 PM IST)
             const eventDateTime = new Date('2025-09-29T16:55:00+05:30');
-            const registrationLink = 'https://gdg.community.dev/events/details/google-gdg-on-campus-sir-chhotu-ram-institute-of-engineering-and-technology-meerut-india-presents-orientation-the-first-sync/';
-
+            
             const countdownContainer = document.getElementById('countdown-container');
             const joinContainer = document.getElementById('join-container');
+            const timerEl = document.getElementById('timer');
+            const labelEl = document.getElementById('countdown-label');
+
             const hoursEl = document.getElementById('hours');
             const minutesEl = document.getElementById('minutes');
             const secondsEl = document.getElementById('seconds');
-            const redirectFooter = document.getElementById('redirect-footer');
-            const footerRedirectMessage = document.getElementById('footer-redirect-message');
 
-            // --- Countdown Timer for Meeting Lobby ---
             function updateCountdown() {
                 const now = new Date();
                 const timeUntilEvent = eventDateTime - now;
@@ -139,6 +130,7 @@
                     minutesEl.textContent = minutes.toString().padStart(2, '0');
                     secondsEl.textContent = seconds.toString().padStart(2, '0');
                 } else {
+                    // Time has passed, show the join button
                     clearInterval(countdownInterval);
                     countdownContainer.classList.add('hidden');
                     joinContainer.classList.remove('hidden');
@@ -146,29 +138,7 @@
             }
             
             const countdownInterval = setInterval(updateCountdown, 1000);
-            updateCountdown(); // Initial call to display timer immediately
-
-            // --- Automatic Redirect Logic for Event Page ---
-            let redirectCountdown = 5; // 2-second countdown
-
-            // Slide in the footer
-            if (redirectFooter) {
-                setTimeout(() => {
-                    redirectFooter.classList.remove('translate-y-full');
-                }, 100);
-            }
-
-            const redirectIntervalId = setInterval(() => {
-                if (footerRedirectMessage) {
-                    footerRedirectMessage.innerHTML = `Redirecting to the event page in <strong>${redirectCountdown}s</strong>. RSVP there to register successfully!`;
-                }
-                redirectCountdown--;
-
-                if (redirectCountdown < 0) {
-                    clearInterval(redirectIntervalId);
-                    window.location.href = registrationLink;
-                }
-            }, 1000);
+            updateCountdown(); // Initial call
         });
     </script>
 </body>

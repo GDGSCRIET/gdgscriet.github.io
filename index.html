@@ -8,16 +8,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+     <link rel="icon" type="image/x-icon" href="/favicon.png"> 
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <main class="container">
         <header class="profile-header">
-            <!-- Banner Placeholder -->
             <div class="banner"></div>
 
-            <!-- Profile Picture Placeholder -->
             <div class="profile-picture">
                 <div class="gdg-logo">
                     <img src="logo.png" alt="GDG Logo">
@@ -30,11 +29,10 @@
             <p class="subtitle">Google Developer Group on Campus SCRIET </p>
         </div>
 
-        <!-- Current Events Section -->
         <div class="events-section">
             <h2>🚀 Current Events</h2>
             <div class="event-card">
-                <a href="https://chat.whatsapp.com/G1IELOpmvYV0tQzFqzjRvK" target="_blank">
+                <a href="https://gdg.community.dev/events/details/google-gdg-on-campus-sir-chhotu-ram-institute-of-engineering-and-technology-meerut-india-presents-orientation-the-first-sync/" target="_blank">
                     <img src="/gdg-orientation-poster.jpg" style="width: 100%; height: 100%; object-fit: cover;"
                         alt="Event Image" class="event-image">
                 </a>
@@ -45,7 +43,8 @@
 
                 <p class="event-description">Your gateway to Learning, Networking, and growing with GDG</p>
                 <div class="event-actions">
-                    <!-- <a href="event.html" class="event-button primary">View Event Details</a> -->
+                    <a href="https://gdg.community.dev/events/details/google-gdg-on-campus-sir-chhotu-ram-institute-of-engineering-and-technology-meerut-india-presents-orientation-the-first-sync/"
+                       id="register-btn" class="event-button primary">Register Now</a>
                     <a href="https://chat.whatsapp.com/G1IELOpmvYV0tQzFqzjRvK" target="_blank"
                         class="event-button secondary">Join Community</a>
                 </div>
@@ -53,7 +52,6 @@
         </div>
 
         <div class="links">
-            <!-- Instagram Link -->
             <a href="https://www.instagram.com/gdg.scriet" target="_blank" class="link-button instagram">
                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path
@@ -62,7 +60,6 @@
                 <span>Instagram</span>
             </a>
 
-            <!-- LinkedIn Link -->
             <a href="https://www.linkedin.com/company/gdg-scriet/" target="_blank" class="link-button linkedin">
                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path
@@ -71,7 +68,6 @@
                 <span>LinkedIn</span>
             </a>
 
-            <!-- WhatsApp Link -->
             <a href="https://chat.whatsapp.com/G1IELOpmvYV0tQzFqzjRvK" target="_blank" class="link-button whatsapp">
                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path
@@ -92,6 +88,16 @@
             <p class="copyright">&copy; 2025 GDG SCRIET</p>
         </footer>
     </main>
+
+    <div id="instruction-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p>You will have to click on <strong>RSVP</strong> to successfully register for the event.</p>
+            <img src="https://i.imgur.com/2TR9s2y.png" alt="RSVP button example"
+                style="width: 100%; max-width: 300px; margin: 15px auto; border: 1px solid #ccc; border-radius: 5px;">
+            <button id="modal-next-btn" class="event-button primary">Next</button>
+        </div>
+    </div>
+
 
     <script>
         const toggleSwitch = document.querySelector('#checkbox');
@@ -131,23 +137,38 @@
 
         // Event listeners for navigation
         document.addEventListener('DOMContentLoaded', function () {
-            // Add click handlers for event buttons
-            const eventButtons = document.querySelectorAll('.event-button.primary');
-            eventButtons.forEach(button => {
-                button.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    navigateToPage('event');
-                });
-            });
-
             // Add animation to event cards
             const eventCard = document.querySelector('.event-card');
             if (eventCard) {
                 eventCard.style.animation = 'fadeInUp 0.8s ease-out';
             }
+
+            // Modal logic
+            const registerBtn = document.getElementById('register-btn');
+            const modal = document.getElementById('instruction-modal');
+            const modalNextBtn = document.getElementById('modal-next-btn');
+            
+            if(registerBtn && modal && modalNextBtn){
+                registerBtn.addEventListener('click', function (e) {
+                    e.preventDefault(); // Prevent link from opening immediately
+                    modal.style.display = 'flex'; // Show the modal
+                });
+
+                modalNextBtn.addEventListener('click', function () {
+                    modal.style.display = 'none'; // Hide the modal
+                    window.open(registerBtn.href, '_blank'); // Open the registration link in a new tab
+                });
+
+                // Optional: Close modal if user clicks outside the content
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
         });
 
-        // Add some CSS animations dynamically
+        // Add some CSS animations and styles dynamically
         const style = document.createElement('style');
         style.textContent = `
             @keyframes fadeInUp {
@@ -172,6 +193,65 @@
             .event-button:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            }
+
+            /* Modal Styles */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.6);
+                display: none; /* Initially hidden */
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+            }
+
+            .modal-content {
+                background-color: #ffffff;
+                color: #333;
+                padding: 25px;
+                border-radius: 12px;
+                text-align: center;
+                width: 90%;
+                max-width: 450px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                animation: modalFadeIn 0.3s ease-out;
+            }
+
+            body.dark-mode .modal-content {
+                background-color: #2c2c2e;
+                color: #f5f5f7;
+            }
+            
+            body.dark-mode .modal-content img {
+                border-color: #555 !important;
+            }
+
+            .modal-content p {
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+            }
+
+            #modal-next-btn {
+                margin-top: 15px;
+                border: none;
+                cursor: pointer;
+            }
+
+            @keyframes modalFadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
             }
         `;
         document.head.appendChild(style);
