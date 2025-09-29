@@ -113,6 +113,17 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Check if current time is in the redirect range (4:45 PM - 5:00 PM IST)
+            const now = new Date();
+            const redirectStartTime = new Date('2025-09-29T16:45:00+05:30'); // 4:45 PM IST
+            const redirectEndTime = new Date('2025-09-29T19:00:00+05:30'); // 5:00 PM IST
+            
+            // If current time is within the redirect window, redirect to meeting lobby
+            if (now >= redirectStartTime && now < redirectEndTime) {
+                window.location.href = '/event/gdg-orientation/meet/';
+                return; // Exit early to prevent other code from running
+            }
+
             // Set the event date and time (29th September 2025, 4:55 PM IST)
             const eventDateTime = new Date('2025-09-29T16:55:00+05:30');
             const registrationLink = 'https://gdg.community.dev/events/details/google-gdg-on-campus-sir-chhotu-ram-institute-of-engineering-and-technology-meerut-india-presents-orientation-the-first-sync/';

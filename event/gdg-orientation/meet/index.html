@@ -78,7 +78,7 @@
         </div>
         
         <div id="join-container" class="hidden">
-            <a href="https://meet.google.com" target="_blank" class="btn btn-primary w-full py-4 rounded-lg font-semibold text-lg inline-flex items-center justify-center gap-2">
+            <a href="https://meet.google.com/jja-fruj-fpb" target="_blank" class="btn btn-primary w-full py-4 rounded-lg font-semibold text-lg inline-flex items-center justify-center gap-2">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                 Join Meeting Now
             </a>
@@ -105,8 +105,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Set the event date and time (29th September 2025, 4:55 PM IST)
-            const eventDateTime = new Date('2025-09-29T16:55:00+05:30');
+            // Set the meeting available time (29th September 2025, 4:30 PM IST - 30 minutes before 5:00 PM event)
+            const meetingAvailableTime = new Date('2025-09-29T16:45:00+05:30');
+            // Event start time (5:00 PM IST)
+            const eventStartTime = new Date('2025-09-29T17:00:00+05:30');
             
             const countdownContainer = document.getElementById('countdown-container');
             const joinContainer = document.getElementById('join-container');
@@ -119,21 +121,50 @@
 
             function updateCountdown() {
                 const now = new Date();
-                const timeUntilEvent = eventDateTime - now;
+                const timeUntilMeetingAvailable = meetingAvailableTime - now;
+                const timeUntilEventStart = eventStartTime - now;
 
-                if (timeUntilEvent > 0) {
-                    const hours = Math.floor(timeUntilEvent / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeUntilEvent % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeUntilEvent % (1000 * 60)) / 1000);
+                if (timeUntilMeetingAvailable > 0) {
+                    // Meeting not yet available - show countdown to meeting availability
+                    labelEl.textContent = 'Meeting opens in:';
+                    const hours = Math.floor(timeUntilMeetingAvailable / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeUntilMeetingAvailable % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeUntilMeetingAvailable % (1000 * 60)) / 1000);
 
                     hoursEl.textContent = hours.toString().padStart(2, '0');
                     minutesEl.textContent = minutes.toString().padStart(2, '0');
                     secondsEl.textContent = seconds.toString().padStart(2, '0');
-                } else {
-                    // Time has passed, show the join button
-                    clearInterval(countdownInterval);
+                } else if (timeUntilEventStart > 0) {
+                    // Meeting is available but event hasn't started yet
                     countdownContainer.classList.add('hidden');
                     joinContainer.classList.remove('hidden');
+                    
+                    // Add a message about early access
+                    if (!document.getElementById('early-access-message')) {
+                        const earlyMessage = document.createElement('div');
+                        earlyMessage.id = 'early-access-message';
+                        earlyMessage.className = 'mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700';
+                        earlyMessage.innerHTML = '🎉 <strong>Meeting is now open!</strong> You can join early and wait for the event to officially begin at 5:00 PM.';
+                        joinContainer.appendChild(earlyMessage);
+                    }
+                } else {
+                    // Event has started
+                    countdownContainer.classList.add('hidden');
+                    joinContainer.classList.remove('hidden');
+                    
+                    // Update message for live event
+                    const earlyMessage = document.getElementById('early-access-message');
+                    if (earlyMessage) {
+                        earlyMessage.innerHTML = '🔴 <strong>Event is LIVE now!</strong> Join the meeting to participate.';
+                        earlyMessage.className = 'mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700';
+                    } else {
+                        // Create live message if it doesn't exist
+                        const liveMessage = document.createElement('div');
+                        liveMessage.id = 'early-access-message';
+                        liveMessage.className = 'mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700';
+                        liveMessage.innerHTML = '🔴 <strong>Event is LIVE now!</strong> Join the meeting to participate.';
+                        joinContainer.appendChild(liveMessage);
+                    }
                 }
             }
             
