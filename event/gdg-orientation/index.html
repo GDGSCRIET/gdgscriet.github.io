@@ -7,10 +7,11 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+     <link rel="icon" type="image/x-icon" href="/favicon.png"> 
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Open Graph Meta Tags -->
@@ -30,7 +31,6 @@
             justify-content: center;
             min-height: 100vh;
             text-align: center;
-            padding-bottom: 80px; /* Add padding to prevent footer from overlapping content */
         }
         .btn {
             transition: all 0.2s ease-in-out;
@@ -49,9 +49,6 @@
         }
         .countdown-segment {
             font-variant-numeric: tabular-nums;
-        }
-        #redirect-footer {
-            transition: transform 0.5s ease-out;
         }
     </style>
 </head>
@@ -81,7 +78,7 @@
         </div>
         
         <div id="join-container" class="hidden">
-            <a href="https://meet.google.com" target="_blank" class="btn btn-primary w-full py-4 rounded-lg font-semibold text-lg inline-flex items-center justify-center gap-2">
+            <a href="https://meet.google.com/jja-fruj-fpb" target="_blank" class="btn btn-primary w-full py-4 rounded-lg font-semibold text-lg inline-flex items-center justify-center gap-2">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                 Join Meeting Now
             </a>
@@ -106,78 +103,43 @@
         </footer>
     </main>
 
-    <!-- Fixed Footer for Redirect -->
-    <div id="redirect-footer" class="fixed bottom-0 left-0 right-0 bg-blue-600 text-white p-3 text-center shadow-lg transform translate-y-full">
-        <p id="footer-redirect-message"></p>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if current time is in the redirect range (4:45 PM - 5:00 PM IST)
-            const now = new Date();
-            const redirectStartTime = new Date('2025-09-29T16:45:00+05:30'); // 4:45 PM IST
-            const redirectEndTime = new Date('2025-09-29T19:00:00+05:30'); // 5:00 PM IST
-            
-            // If current time is within the redirect window, redirect to meeting lobby
-            if (now >= redirectStartTime && now < redirectEndTime) {
-                window.location.href = '/event/gdg-orientation/meet/';
-                return; // Exit early to prevent other code from running
-            }
-
-            // Set the event date and time (29th September 2025, 4:55 PM IST)
-            const eventDateTime = new Date('2025-09-29T16:55:00+05:30');
-            const registrationLink = 'https://gdg.community.dev/events/details/google-gdg-on-campus-sir-chhotu-ram-institute-of-engineering-and-technology-meerut-india-presents-orientation-the-first-sync/';
-
+            // Event has completed - show completion message and redirect to home page
             const countdownContainer = document.getElementById('countdown-container');
             const joinContainer = document.getElementById('join-container');
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-            const redirectFooter = document.getElementById('redirect-footer');
-            const footerRedirectMessage = document.getElementById('footer-redirect-message');
-
-            // --- Countdown Timer for Meeting Lobby ---
-            function updateCountdown() {
-                const now = new Date();
-                const timeUntilEvent = eventDateTime - now;
-
-                if (timeUntilEvent > 0) {
-                    const hours = Math.floor(timeUntilEvent / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeUntilEvent % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeUntilEvent % (1000 * 60)) / 1000);
-
-                    hoursEl.textContent = hours.toString().padStart(2, '0');
-                    minutesEl.textContent = minutes.toString().padStart(2, '0');
-                    secondsEl.textContent = seconds.toString().padStart(2, '0');
-                } else {
-                    clearInterval(countdownInterval);
-                    countdownContainer.classList.add('hidden');
-                    joinContainer.classList.remove('hidden');
-                }
-            }
             
-            const countdownInterval = setInterval(updateCountdown, 1000);
-            updateCountdown(); // Initial call to display timer immediately
-
-            // --- Automatic Redirect Logic for Event Page ---
-            let redirectCountdown = 2; // 2-second countdown
-
-            // Slide in the footer
-            if (redirectFooter) {
-                setTimeout(() => {
-                    redirectFooter.classList.remove('translate-y-full');
-                }, 100);
-            }
-
-            const redirectIntervalId = setInterval(() => {
-                if (footerRedirectMessage) {
-                    footerRedirectMessage.innerHTML = `Redirecting to the event page in <strong>${redirectCountdown}s</strong>. RSVP there to register successfully!`;
+            // Hide countdown and join containers
+            countdownContainer.classList.add('hidden');
+            joinContainer.classList.add('hidden');
+            
+            // Create completion message
+            const completionMessage = document.createElement('div');
+            completionMessage.className = 'bg-green-50 border border-green-200 rounded-xl p-8 text-center';
+            completionMessage.innerHTML = `
+                <div class="text-green-600 text-4xl mb-4">✅</div>
+                <h2 class="text-2xl font-bold text-green-800 mb-2">Event Completed!</h2>
+                <p class="text-green-700 mb-4">Thank you for joining GDG SCRIET's Orientation Programme.</p>
+                <p class="text-sm text-green-600">Redirecting to home page in <span id="redirect-timer">5</span> seconds...</p>
+            `;
+            
+            // Insert completion message after the date info
+            const dateInfo = document.querySelector('.mb-8.text-center');
+            dateInfo.parentNode.insertBefore(completionMessage, dateInfo.nextSibling);
+            
+            // Countdown redirect
+            let countdown = 5;
+            const timerElement = document.getElementById('redirect-timer');
+            
+            const redirectInterval = setInterval(() => {
+                countdown--;
+                if (timerElement) {
+                    timerElement.textContent = countdown;
                 }
-                redirectCountdown--;
-
-                if (redirectCountdown < 0) {
-                    clearInterval(redirectIntervalId);
-                    window.location.href = registrationLink;
+                
+                if (countdown <= 0) {
+                    clearInterval(redirectInterval);
+                    window.location.href = '/';
                 }
             }, 1000);
         });

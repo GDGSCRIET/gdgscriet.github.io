@@ -105,71 +105,43 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Set the meeting available time (29th September 2025, 4:30 PM IST - 30 minutes before 5:00 PM event)
-            const meetingAvailableTime = new Date('2025-09-29T16:45:00+05:30');
-            // Event start time (5:00 PM IST)
-            const eventStartTime = new Date('2025-09-29T17:00:00+05:30');
-            
+            // Event has completed - show completion message and redirect to home page
             const countdownContainer = document.getElementById('countdown-container');
             const joinContainer = document.getElementById('join-container');
-            const timerEl = document.getElementById('timer');
-            const labelEl = document.getElementById('countdown-label');
-
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-
-            function updateCountdown() {
-                const now = new Date();
-                const timeUntilMeetingAvailable = meetingAvailableTime - now;
-                const timeUntilEventStart = eventStartTime - now;
-
-                if (timeUntilMeetingAvailable > 0) {
-                    // Meeting not yet available - show countdown to meeting availability
-                    labelEl.textContent = 'Meeting opens in:';
-                    const hours = Math.floor(timeUntilMeetingAvailable / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeUntilMeetingAvailable % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeUntilMeetingAvailable % (1000 * 60)) / 1000);
-
-                    hoursEl.textContent = hours.toString().padStart(2, '0');
-                    minutesEl.textContent = minutes.toString().padStart(2, '0');
-                    secondsEl.textContent = seconds.toString().padStart(2, '0');
-                } else if (timeUntilEventStart > 0) {
-                    // Meeting is available but event hasn't started yet
-                    countdownContainer.classList.add('hidden');
-                    joinContainer.classList.remove('hidden');
-                    
-                    // Add a message about early access
-                    if (!document.getElementById('early-access-message')) {
-                        const earlyMessage = document.createElement('div');
-                        earlyMessage.id = 'early-access-message';
-                        earlyMessage.className = 'mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700';
-                        earlyMessage.innerHTML = '🎉 <strong>Meeting is now open!</strong> You can join early and wait for the event to officially begin at 5:00 PM.';
-                        joinContainer.appendChild(earlyMessage);
-                    }
-                } else {
-                    // Event has started
-                    countdownContainer.classList.add('hidden');
-                    joinContainer.classList.remove('hidden');
-                    
-                    // Update message for live event
-                    const earlyMessage = document.getElementById('early-access-message');
-                    if (earlyMessage) {
-                        earlyMessage.innerHTML = '🔴 <strong>Event is LIVE now!</strong> Join the meeting to participate.';
-                        earlyMessage.className = 'mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700';
-                    } else {
-                        // Create live message if it doesn't exist
-                        const liveMessage = document.createElement('div');
-                        liveMessage.id = 'early-access-message';
-                        liveMessage.className = 'mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700';
-                        liveMessage.innerHTML = '🔴 <strong>Event is LIVE now!</strong> Join the meeting to participate.';
-                        joinContainer.appendChild(liveMessage);
-                    }
-                }
-            }
             
-            const countdownInterval = setInterval(updateCountdown, 1000);
-            updateCountdown(); // Initial call
+            // Hide countdown and join containers
+            countdownContainer.classList.add('hidden');
+            joinContainer.classList.add('hidden');
+            
+            // Create completion message
+            const completionMessage = document.createElement('div');
+            completionMessage.className = 'bg-green-50 border border-green-200 rounded-xl p-8 text-center';
+            completionMessage.innerHTML = `
+                <div class="text-green-600 text-4xl mb-4">✅</div>
+                <h2 class="text-2xl font-bold text-green-800 mb-2">Event Completed!</h2>
+                <p class="text-green-700 mb-4">Thank you for joining GDG SCRIET's Orientation Programme.</p>
+                <p class="text-sm text-green-600">Redirecting to home page in <span id="redirect-timer">5</span> seconds...</p>
+            `;
+            
+            // Insert completion message after the date info
+            const dateInfo = document.querySelector('.mb-8.text-center');
+            dateInfo.parentNode.insertBefore(completionMessage, dateInfo.nextSibling);
+            
+            // Countdown redirect
+            let countdown = 5;
+            const timerElement = document.getElementById('redirect-timer');
+            
+            const redirectInterval = setInterval(() => {
+                countdown--;
+                if (timerElement) {
+                    timerElement.textContent = countdown;
+                }
+                
+                if (countdown <= 0) {
+                    clearInterval(redirectInterval);
+                    window.location.href = '/';
+                }
+            }, 1000);
         });
     </script>
 </body>
