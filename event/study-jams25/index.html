@@ -25,7 +25,7 @@
         <!-- Banner -->
         <div class="mb-10">
             <!-- Keeping the same banner image as requested -->
-            <img src="/event/study-jams25/studyjams25poster.png" alt="Google Cloud Study Jams 2025–26" class="w-full rounded-lg shadow-lg">
+            <img src="/event/study-jams25/studyjams25poster.png" alt="Google Cloud Study Jams 2025–26" class="w-full rounded-lg" onerror="this.src='https://placehold.co/1200x630/60a5fa/ffffff?text=Google+Cloud+Study+Jams'; this.onerror=null;">
         </div>
 
         <!-- Main Content -->
@@ -38,7 +38,7 @@
             </p>
             
             <div class="space-y-3 text-sm text-gray-600 mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                 <p>• Information on how to <strong>redeem your credits</strong></p>
+                <p>• Information on how to <strong>redeem your credits</strong></p>
                 <p>• Program timeline and <strong>structured lab guidance</strong></p>
                 <p>• Tips for <strong>supplemental learning</strong> (e.g., YouTube)</p>
                 <p>• Get your <strong>questions answered live</strong> by the team</p>
@@ -55,7 +55,7 @@
             <!-- This content will be dynamically updated by JavaScript -->
             <div id="cta-button-container">
                 <div class="block w-full rounded-full mx-auto text-center px-6 py-3 bg-gray-400 text-white font-medium cursor-not-allowed">
-                    Loading...
+                    Redirecting...
                 </div>
             </div>
             <p id="cta-helper-text" class="mt-3 text-sm text-gray-500 text-center"></p>
@@ -85,88 +85,34 @@
         </footer>
     </main>
 
+    <!-- New Redirect Banner -->
+    <div id="redirect-banner" class="fixed bottom-0 left-0 right-0 bg-blue-600 text-white p-4 text-center font-semibold text-lg shadow-lg z-50">
+        Redirecting...
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const ctaContainer = document.getElementById('cta-button-container');
-            const ctaHelper = document.getElementById('cta-helper-text');
+            const redirectBanner = document.getElementById('redirect-banner');
+            const targetUrl = 'https://gdg.community.dev/events/details/google-gdg-on-campus-sir-chhotu-ram-institute-of-engineering-and-technology-meerut-india-presents-google-cloud-study-jams-kickstart-your-cloud-journey/';
             
-            // --- IMPORTANT: Set your meeting link here ---
-            const meetingLink = "https://meet.google.com/your-link-here"; 
-            
-            // Set event times in IST (UTC+05:30)
-            const eventStartTime = new Date('2025-10-27T17:00:00+05:30');
-            const activationTime = new Date(eventStartTime.getTime() - 30 * 60 * 1000); // 4:30 PM IST
-            const eventEndTime = new Date(eventStartTime.getTime() + 60 * 60 * 1000); // 6:00 PM IST (assuming 1hr session)
+            let timeLeft = 3; // Countdown from 3 seconds
 
-            let countdownInterval;
+            // Set initial banner text
+            redirectBanner.textContent = `Redirecting to official event page in ${timeLeft}...`;
 
-            function updateCTA() {
-                const now = new Date();
-
-                if (now >= activationTime && now <= eventEndTime) {
-                    // Case 1: Event is active
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    ctaContainer.innerHTML = `
-                        <a href="${meetingLink}" target="_blank" rel="noopener"
-                           class="block w-full rounded-full mx-auto text-center px-6 py-3 bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors animate-pulse">
-                            Join the Session Now
-                        </a>`;
-                    ctaHelper.textContent = "Meeting opens in new tab";
-                    
-                } else if (now > eventEndTime) {
-                    // Case 2: Event is over
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    ctaContainer.innerHTML = `
-                        <div class="block w-full rounded-full mx-auto text-center px-6 py-3 bg-gray-400 text-white font-medium cursor-not-allowed">
-                            Session Ended
-                        </div>`;
-                    ctaHelper.textContent = "Thanks for joining us! Stay tuned for updates.";
-                    
+            const countdownInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    // Update countdown text
+                    redirectBanner.textContent = `Redirecting to official event page in ${timeLeft}...`;
                 } else {
-                    // Case 3: Waiting for event
-                    ctaContainer.innerHTML = `
-                        <div class="block w-full rounded-full mx-auto text-center px-6 py-3 bg-gray-500 text-white font-medium cursor-wait">
-                            Join Now
-                        </div>`;
-                    
-                    // Start or update countdown timer
-                    updateCountdown(now);
-                    if (!countdownInterval) {
-                        countdownInterval = setInterval(() => {
-                            // Recalculate 'now' inside the interval
-                            updateCountdown(new Date());
-                        }, 1000);
-                    }
+                    // Time's up
+                    clearInterval(countdownInterval);
+                    redirectBanner.textContent = 'Redirecting now...';
+                    // Perform the redirect
+                    window.location.href = targetUrl;
                 }
-            }
-
-            function updateCountdown(now) {
-                // Calculate distance to activation time
-                const distance = activationTime.getTime() - now.getTime();
-
-                if (distance <= 0) {
-                    // Time to activate!
-                    if (countdownInterval) clearInterval(countdownInterval);
-                    updateCTA(); // This will switch to the "Join Now" button
-                    return;
-                }
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                let countdownText = "Button activates in: ";
-                if (days > 0) countdownText += `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                else if (hours > 0) countdownText += `${hours}h ${minutes}m ${seconds}s`;
-                else if (minutes > 0) countdownText += `${minutes}m ${seconds}s`;
-                else countdownText += `${seconds}s`;
-                
-                ctaHelper.textContent = countdownText;
-            }
-
-            // Initial call to set the correct state
-            updateCTA();
+            }, 1000); // Run every 1 second
         });
     </script>
 </body>
