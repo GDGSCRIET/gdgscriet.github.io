@@ -2,102 +2,90 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// --- Configuration ---
+const BUILD_DIR = 'out';
+const DEPLOY_BRANCH = 'gh-pages';
+// ---------------------
+
 console.log('🚀 Starting deployment process...\n');
 
 try {
   // Step 1: Build the project
   console.log('📦 Building the project...');
   execSync('npm run build', { stdio: 'inherit' });
-  console.log('✅ Build completed!\n');
+  console.log(`✅ Build completed! Output is in '/${BUILD_DIR}'.\n`);
 
-  // Step 2: Check if gh-pages branch exists
-  console.log('🔍 Checking gh-pages branch...');
-  try {
-    execSync('git show-ref --verify refs/heads/gh-pages', { stdio: 'pipe' });
-    console.log('✅ gh-pages branch exists\n');
-  } catch {
-    console.log('📝 Creating gh-pages branch...');
-    execSync('git checkout --orphan gh-pages', { stdio: 'inherit' });
-    execSync('git rm -rf .', { stdio: 'inherit' });
-    execSync('git checkout main', { stdio: 'inherit' });
-    console.log('✅ gh-pages branch created\n');
-  }
+  // Step 2: Add a .nojekyll file to the build directory
+  // This tells GitHub Pages to not run the files through Jekyll.
+  console.log(`📝 Adding .nojekyll to '/${BUILD_DIR}'...`);
+  fs.writeFileSync(path.join(__dirname, BUILD_DIR, '.nojekyll'), '');
+  console.log('✅ .nojekyll file created.\n');
 
-  // Step 3: Navigate to out directory
-  const outDir = path.join(__dirname, 'out');
-  if (!fs.existsSync(outDir)) {
-    throw new Error('Build output directory "out" not found!');
-  }
+  // Step 3: Force-add the build directory to git.
+  // We use -f (force) because the build directory is usually in .gitignore
+  console.log(`git add ${BUILD_DIR} -f`);
+  execSync(`git add ${BUILD_DIR} -f`, { stdio: 'inherit' });
+  console.log('✅ Build directory added to staging.\n');
 
-  // Step 4: Save current branch
-  const currentBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
-  console.log(`💾 Current branch: ${currentBranch}\n`);
-
-  // Step 5: Switch to gh-pages branch
-  console.log('🔄 Switching to gh-pages branch...');
-  execSync('git checkout gh-pages', { stdio: 'inherit' });
-
-  // Step 6: Remove old files (keep .git)
-  console.log('🧹 Cleaning old files...');
-  const files = fs.readdirSync('.');
-  files.forEach(file => {
-    if (file !== '.git' && file !== 'out' && file !== 'node_modules') {
-      try {
-        fs.rmSync(file, { recursive: true, force: true });
-      } catch (err) {
-        console.warn(`⚠️  Could not remove ${file}`);
-      }
-    }
+  // Step 4: Create a temporary commit with the build.
+  // We use --allow-empty in case the build hasn't changed, but we still want to deploy.
+  const commitMessage = `temp: Deploy build at ${new Date().toISOString()}`;
+  console.log('💾 Creating temporary build commit...');
+  execSync(`git commit -m "${commitMessage}" --allow-empty`, {
+    stdio: 'inherit',
   });
+  console.log('✅ Temporary commit created.\n');
 
-  // Step 7: Copy build files
-  console.log('📋 Copying build files...');
-  const outFiles = fs.readdirSync(outDir);
-  outFiles.forEach(file => {
-    const src = path.join(outDir, file);
-    const dest = path.join('.', file);
-    fs.cpSync(src, dest, { recursive: true });
+  // Step 5: Push *only* the build directory to the 'gh-pages' branch.
+  // This command is the magic:
+  // 'git subtree push' - Pushes a subdirectory to a remote.
+  // '--prefix out' - Specifies that only the 'out' folder's *contents* should be pushed.
+  // 'origin gh-pages' - The destination remote and branch.
+  console.log(`🚀 Pushing '/${BUILD_DIR}' contents to '${DEPLOY_BRANCH}' branch...`);
+  execSync(`git subtree push --prefix ${BUILD_DIR} origin ${DEPLOY_BRANCH}`, {
+    stdio: 'inherit',
   });
-  console.log('✅ Files copied!\n');
+  console.log('✅ Deployed successfully to GitHub Pages!\n');
 
-  // Step 8: Create .nojekyll if not exists
-  if (!fs.existsSync('.nojekyll')) {
-    fs.writeFileSync('.nojekyll', '');
-  }
+  // Step 6: Remove the temporary commit from the main branch.
+  // This cleans up your local 'main' branch history,
+  // so the build commit doesn't clutter it.
+  console.log('🧹 Cleaning up temporary commit from local branch...');
+  execSync('git reset HEAD~1', { stdio: 'inherit' });
+  console.log('✅ Local branch history cleaned.\n');
 
-  // Step 9: Commit and push
-  console.log('💾 Committing changes...');
-  execSync('git add .', { stdio: 'inherit' });
-  
+  // Step 7: Get the remote URL to show the user
   try {
-    execSync(`git commit -m "Deploy: ${new Date().toISOString()}"`, { stdio: 'inherit' });
-    console.log('✅ Changes committed!\n');
-    
-    console.log('🚀 Pushing to remote gh-pages...');
-    execSync('git push origin gh-pages --force', { stdio: 'inherit' });
-    console.log('✅ Deployed successfully!\n');
-  } catch (err) {
-    if (err.message.includes('nothing to commit')) {
-      console.log('ℹ️  No changes to deploy\n');
+    const remoteUrl = execSync('git config --get remote.origin.url')
+      .toString()
+      .trim();
+    // Regex to match https://github.com/user/repo.git or git@github.com:user/repo.git
+    const urlMatch = remoteUrl.match(/github\.com[/:]([\w-]+\/[\w-]+\.git)/);
+    if (urlMatch && urlMatch[1]) {
+      const [user, repo] = urlMatch[1].replace('.git', '').split('/');
+      console.log('-----------------------------------');
+      console.log('✨ Deployment complete!');
+      console.log(
+        `🌐 Your site should be live at: https://${user}.github.io/${repo}\n`
+      );
+      console.log('-----------------------------------');
     } else {
-      throw err;
+      console.log('✨ Deployment complete! Check your GitHub Pages URL.\n');
     }
+  } catch (err) {
+    console.log('✨ Deployment complete! Check your GitHub Pages URL.\n');
   }
-
-  // Step 10: Switch back to original branch
-  console.log(`🔄 Switching back to ${currentBranch}...`);
-  execSync(`git checkout ${currentBranch}`, { stdio: 'inherit' });
-
-  console.log('\n✨ Deployment completed successfully!');
-  console.log('🌐 Your site will be available at: https://gdgscriet.github.io\n');
-
 } catch (error) {
   console.error('\n❌ Deployment failed:', error.message);
-  
-  // Try to switch back to original branch
+
+  // Attempt to clean up the temporary commit in case of failure
+  console.log('Attempting to roll back temporary commit...');
   try {
-    execSync('git checkout main', { stdio: 'ignore' });
-  } catch {}
-  
+    execSync('git reset HEAD~1', { stdio: 'ignore' });
+    console.log('Temporary commit rolled back.');
+  } catch (cleanupError) {
+    console.warn('Could not roll back temporary commit. You may need to run "git reset HEAD~1" manually.');
+  }
+
   process.exit(1);
 }
