@@ -12,7 +12,7 @@ export default function Navbar() {
           {/* Left: Logo */}
           <Link href="/" className="flex items-center space-x-3">
             <div className="h-16 rounded-lg overflow-hidden flex items-center justify-center">
-              <img src="/gdg-logo.png" alt="GDG SCREIT Logo" className="w-full h-full object-contain" />
+              <img src="/gdg-logo.png" alt="GDG SCRIET Logo" className="w-full h-full object-contain" />
             </div>
           </Link>
 
@@ -36,7 +36,7 @@ export default function Navbar() {
 
           {/* Right: Small utilities (Still commented out, as per original) */}
           {/* <div className="flex items-center space-x-3">
-             <Link href="https://gdg.community.dev/gdg-screit/" target="_blank" className="text-sm text-gray-700 dark:text-gray-200 hover:text-indigo-600 transition">Community</Link>
+             <Link href="https://gdg.community.dev/gdg-SCRIET/" target="_blank" className="text-sm text-gray-700 dark:text-gray-200 hover:text-indigo-600 transition">Community</Link>
            </div> */}
         </div>
       </div>

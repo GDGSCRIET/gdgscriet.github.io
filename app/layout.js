@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "GDG SCREIT - Google Developer Group",
-  description: "Official website of GDG SCREIT - Building a community of developers",
+  title: "GDG SCRIET - Google Developer Group",
+  description: "Official website of GDG SCRIET - Building a community of developers",
 };
 
 export default function RootLayout({ children }) {
