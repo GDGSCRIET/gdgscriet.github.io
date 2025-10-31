@@ -26,6 +26,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog";
+// import dynamic from "next/dynamic";
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -725,3 +726,5 @@ export default function AdminDashboard() {
         </div>
     );
 }
+
+export const dynamic = 'force-dynamic';
