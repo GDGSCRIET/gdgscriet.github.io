@@ -538,35 +538,57 @@ export default function AdminDashboard() {
                                         <div>
                                             <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
                                                 <span className="text-xl"></span>
-                                                Arcade Games
+                                                Arcade Games 
                                             </h3>
                                             <div className="space-y-2">
-                                                {selectedParticipant.badges
-                                                    .filter((b) => b.badge_type === "arcade_game")
-                                                    .map((badge, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${badge.completed
-                                                                ? "bg-green-950/30 border-green-700/50"
-                                                                : "bg-gray-800/50 border-gray-700"
+                                                {(() => {
+                                                    const arcadeGames = selectedParticipant.badges.filter((b) => b.badge_type === "arcade_game");
+                                                    const completedCount = arcadeGames.filter(b => b.completed).length;
+                                                    
+                                                    return arcadeGames.map((badge, idx) => {
+                                                        // If one is already completed, mark remaining as "Not Required"
+                                                        const isNotRequired = completedCount >= 1 && !badge.completed;
+                                                        
+                                                        return (
+                                                            <div
+                                                                key={idx}
+                                                                className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
+                                                                    badge.completed
+                                                                        ? "bg-green-950/30 border-green-700/50"
+                                                                        : isNotRequired
+                                                                        ? "bg-gray-900/30 border-gray-700/30"
+                                                                        : "bg-gray-800/50 border-gray-700"
                                                                 }`}
-                                                        >
-                                                            <div className="flex items-center gap-3 flex-1">
-                                                                <span className="text-xl">{badge.completed ? "✅" : "⏳"}</span>
-                                                                <span className={`text-base ${badge.completed ? "font-semibold" : "text-gray-400"}`}>
-                                                                    {badge.name}
+                                                            >
+                                                                <div className="flex items-center gap-3 flex-1">
+                                                                    <span className="text-xl">
+                                                                        {badge.completed ? "✅" : isNotRequired ? "➖" : "⏳"}
+                                                                    </span>
+                                                                    <span className={`text-base ${
+                                                                        badge.completed 
+                                                                            ? "font-semibold" 
+                                                                            : isNotRequired 
+                                                                            ? "text-gray-500 line-through" 
+                                                                            : "text-gray-400"
+                                                                    }`}>
+                                                                        {badge.name}
+                                                                    </span>
+                                                                </div>
+                                                                <span
+                                                                    className={`px-3 py-1 rounded-md text-xs font-bold ${
+                                                                        badge.completed
+                                                                            ? "bg-green-600 text-white"
+                                                                            : isNotRequired
+                                                                            ? "bg-gray-600 text-gray-300"
+                                                                            : "bg-amber-600 text-white"
+                                                                    }`}
+                                                                >
+                                                                    {badge.completed ? "✓ Done" : isNotRequired ? "Not Required" : "Pending"}
                                                                 </span>
                                                             </div>
-                                                            <span
-                                                                className={`px-3 py-1 rounded-md text-xs font-bold ${badge.completed
-                                                                    ? "bg-green-600 text-white"
-                                                                    : "bg-amber-600 text-white"
-                                                                    }`}
-                                                            >
-                                                                {badge.completed ? "✓ Done" : "Pending"}
-                                                            </span>
-                                                        </div>
-                                                    ))}
+                                                        );
+                                                    });
+                                                })()}
                                             </div>
                                         </div>
                                     )}
