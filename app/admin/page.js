@@ -35,7 +35,10 @@ export default function AdminDashboard() {
     const [participants, setParticipants] = useState([]);
     const [error, setError] = useState(null);
     const [globalFilter, setGlobalFilter] = useState("");
-    const [sorting, setSorting] = useState([{ id: "completion_percentage", desc: true }]);
+    const [sorting, setSorting] = useState([
+        { id: "rank", desc: false },
+        { id: "completion_percentage", desc: true }
+    ]);
     const [selectedParticipant, setSelectedParticipant] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -59,6 +62,12 @@ export default function AdminDashboard() {
     // Table columns definition
     const columns = useMemo(
         () => [
+            {
+                accessorKey: "rank",
+                header: "Rank",
+                enableHiding: true,
+                // Hidden column - used only for sorting
+            },
             {
                 accessorKey: "name",
                 header: "Name",
@@ -141,12 +150,21 @@ export default function AdminDashboard() {
         state: {
             sorting,
             globalFilter,
+            columnVisibility: {
+                rank: false, // Hide rank column
+            },
         },
         onSortingChange: setSorting,
         onGlobalFilterChange: setGlobalFilter,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        initialState: {
+            sorting: [
+                { id: "rank", desc: false },
+                { id: "completion_percentage", desc: true }
+            ],
+        },
     });
 
     async function loadData() {
