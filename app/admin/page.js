@@ -66,6 +66,19 @@ export default function AdminDashboard() {
                 accessorKey: "rank",
                 header: "Rank",
                 enableHiding: true,
+                sortingFn: (rowA, rowB) => {
+                    const rankA = rowA.original.rank;
+                    const rankB = rowB.original.rank;
+                    
+                    // If both are null, they're equal
+                    if (rankA == null && rankB == null) return 0;
+                    // If only A is null, B comes first (A goes to bottom)
+                    if (rankA == null) return 1;
+                    // If only B is null, A comes first (B goes to bottom)
+                    if (rankB == null) return -1;
+                    // Both have values, sort normally
+                    return rankA - rankB;
+                },
                 // Hidden column - used only for sorting
             },
             {
