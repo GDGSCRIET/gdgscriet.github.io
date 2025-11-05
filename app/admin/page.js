@@ -39,8 +39,17 @@ export default function AdminDashboard() {
         { id: "rank", desc: false },
         { id: "completion_percentage", desc: true }
     ]);
+    const [columnFilters, setColumnFilters] = useState([]);
     const [selectedParticipant, setSelectedParticipant] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    // Filter states
+    const [showFilters, setShowFilters] = useState(false);
+    const [redeemedFilter, setRedeemedFilter] = useState("all");
+    const [progressFilter, setProgressFilter] = useState("");
+    const [progressOperator, setProgressOperator] = useState(">=");
+    const [badgesFilter, setBadgesFilter] = useState("");
+    const [badgesOperator, setBadgesOperator] = useState(">=");
 
     // Bot control states
     const [showBotModal, setShowBotModal] = useState(false);
@@ -49,6 +58,12 @@ export default function AdminDashboard() {
     const [scrapeType, setScrapeType] = useState("active");
     const [botLoading, setBotLoading] = useState(false);
     const [botMessage, setBotMessage] = useState(null);
+
+    // CSV upload states
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [uploadFile, setUploadFile] = useState(null);
+    const [uploadLoading, setUploadLoading] = useState(false);
+    const [uploadMessage, setUploadMessage] = useState(null);
 
     useEffect(() => {
         // Check if user is authenticated
@@ -138,6 +153,41 @@ export default function AdminDashboard() {
                     );
                 },
             },
+            ...(isAuthenticated ? [
+                {
+                    accessorKey: "access_code_redeemed",
+                    header: "Redeemed",
+                    cell: ({ row }) => (
+                        <div className="text-start">
+                            <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                row.original.access_code_redeemed
+                                    ? "bg-green-600 text-white"
+                                    : "bg-gray-600 text-gray-300"
+                            }`}>
+                                {row.original.access_code_redeemed ? "Yes" : "No"}
+                            </span>
+                        </div>
+                    ),
+                },
+                {
+                    accessorKey: "updated_at",
+                    header: "Last Update",
+                    cell: ({ row }) => {
+                        const date = row.original.updated_at 
+                            ? new Date(row.original.updated_at).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                            })
+                            : "Never";
+                        return (
+                            <div className="text-start text-gray-400 text-sm">
+                                {date}
+                            </div>
+                        );
+                    },
+                },
+            ] : []),
             {
                 id: "actions",
                 header: "Actions",
@@ -153,12 +203,58 @@ export default function AdminDashboard() {
                 ),
             },
         ],
-        []
+        [isAuthenticated]
     );
+
+    // Apply custom filters
+    const filteredData = useMemo(() => {
+        let filtered = [...participants];
+
+        // Redeemed filter
+        if (isAuthenticated && redeemedFilter !== "all") {
+            filtered = filtered.filter(p => 
+                redeemedFilter === "yes" ? p.access_code_redeemed : !p.access_code_redeemed
+            );
+        }
+
+        // Progress filter
+        if (progressFilter !== "") {
+            const targetProgress = parseFloat(progressFilter);
+            filtered = filtered.filter(p => {
+                const progress = p.completion_percentage ?? 0;
+                switch (progressOperator) {
+                    case ">=": return progress >= targetProgress;
+                    case "<=": return progress <= targetProgress;
+                    case "=": return progress === targetProgress;
+                    case ">": return progress > targetProgress;
+                    case "<": return progress < targetProgress;
+                    default: return true;
+                }
+            });
+        }
+
+        // Badges filter
+        if (badgesFilter !== "") {
+            const targetBadges = parseInt(badgesFilter);
+            filtered = filtered.filter(p => {
+                const badges = p.completed_badges ?? 0;
+                switch (badgesOperator) {
+                    case ">=": return badges >= targetBadges;
+                    case "<=": return badges <= targetBadges;
+                    case "=": return badges === targetBadges;
+                    case ">": return badges > targetBadges;
+                    case "<": return badges < targetBadges;
+                    default: return true;
+                }
+            });
+        }
+
+        return filtered;
+    }, [participants, isAuthenticated, redeemedFilter, progressFilter, progressOperator, badgesFilter, badgesOperator]);
 
     // Table instance
     const table = useReactTable({
-        data: participants,
+        data: filteredData,
         columns,
         state: {
             sorting,
@@ -172,6 +268,7 @@ export default function AdminDashboard() {
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        enableMultiSort: true,
         initialState: {
             sorting: [
                 { id: "rank", desc: false },
@@ -315,6 +412,59 @@ export default function AdminDashboard() {
         setBotMessage(null);
     }
 
+    // CSV Upload functions
+    async function handleUploadCSV() {
+        if (!uploadFile) {
+            setUploadMessage({ type: "error", text: "Please select a CSV file" });
+            return;
+        }
+
+        setUploadLoading(true);
+        setUploadMessage(null);
+
+        const formData = new FormData();
+        formData.append("file", uploadFile);
+
+        try {
+            const response = await apiClient.post("/api/admin/upload-csv", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            setUploadMessage({
+                type: "success",
+                text: `${response.data.message}. Added: ${response.data.added}, Updated: ${response.data.updated}`,
+            });
+
+            // Refresh data after upload
+            setTimeout(async () => {
+                await loadData();
+                setShowUploadModal(false);
+                setUploadFile(null);
+            }, 2000);
+        } catch (err) {
+            setUploadMessage({
+                type: "error",
+                text: err.response?.data?.detail || "Failed to upload CSV. Please try again.",
+            });
+        } finally {
+            setUploadLoading(false);
+        }
+    }
+
+    function openUploadModal() {
+        setShowUploadModal(true);
+        setUploadFile(null);
+        setUploadMessage(null);
+    }
+
+    function closeUploadModal() {
+        setShowUploadModal(false);
+        setUploadFile(null);
+        setUploadMessage(null);
+    }
+
     function logout() {
         localStorage.removeItem("token");
         localStorage.removeItem("first_name");
@@ -337,6 +487,13 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-3">
                         {isAuthenticated ? (
                             <>
+                                <button
+                                    onClick={openUploadModal}
+                                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
+                                >
+                                    <span>📄</span>
+                                    <span className="hidden sm:inline">Upload CSV</span>
+                                </button>
                                 <button
                                     onClick={openBotModal}
                                     className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
@@ -393,8 +550,8 @@ export default function AdminDashboard() {
 
                 {/* Table Card */}
                 <div className="bg-gray-900/50 border border-gray-800 rounded-xl backdrop-blur-sm">
-                    {/* Search */}
-                    <div className="py-2 px-2 flex items-center justify-between gap-4 mb-6">
+                    {/* Search and Filter Toggle */}
+                    <div className="py-2 px-2 flex items-center justify-between gap-4 mb-4">
                         <div className="relative flex-1 max-w-md">
                             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                             <input
@@ -405,10 +562,119 @@ export default function AdminDashboard() {
                                 className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-gray-500"
                             />
                         </div>
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                showFilters
+                                    ? "bg-indigo-600 text-white"
+                                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                            }`}
+                        >
+                            🔍 Filters
+                        </button>
                         <div className="text-gray-400 text-sm font-medium">
                             {table.getFilteredRowModel().rows.length} participants
                         </div>
                     </div>
+
+                    {/* Advanced Filters */}
+                    {showFilters && (
+                        <div className="px-2 pb-4 border-b border-gray-800">
+                            <div className="bg-gray-800/50 rounded-lg p-4 space-y-4">
+                                <h3 className="text-white font-semibold mb-3">Advanced Filters</h3>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {/* Redeemed Filter - Admin Only */}
+                                    {isAuthenticated && (
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1">
+                                                Redeemed Status
+                                            </label>
+                                            <select
+                                                value={redeemedFilter}
+                                                onChange={(e) => setRedeemedFilter(e.target.value)}
+                                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                            >
+                                                <option value="all">All</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {/* Progress Filter */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-400 mb-1">
+                                            Progress %
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={progressOperator}
+                                                onChange={(e) => setProgressOperator(e.target.value)}
+                                                className="w-20 px-2 py-2 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                            >
+                                                <option value=">=">&gt;=</option>
+                                                <option value="<=">&lt;=</option>
+                                                <option value="=">=</option>
+                                                <option value=">">&gt;</option>
+                                                <option value="<">&lt;</option>
+                                            </select>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max="100"
+                                                placeholder="e.g., 75"
+                                                value={progressFilter}
+                                                onChange={(e) => setProgressFilter(e.target.value)}
+                                                className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Badges Filter */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-400 mb-1">
+                                            Completed Badges
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <select
+                                                value={badgesOperator}
+                                                onChange={(e) => setBadgesOperator(e.target.value)}
+                                                className="w-20 px-2 py-2 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                            >
+                                                <option value=">=">&gt;=</option>
+                                                <option value="<=">&lt;=</option>
+                                                <option value="=">=</option>
+                                                <option value=">">&gt;</option>
+                                                <option value="<">&lt;</option>
+                                            </select>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                placeholder="e.g., 10"
+                                                value={badgesFilter}
+                                                onChange={(e) => setBadgesFilter(e.target.value)}
+                                                className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Clear Filters */}
+                                <button
+                                    onClick={() => {
+                                        setRedeemedFilter("all");
+                                        setProgressFilter("");
+                                        setBadgesFilter("");
+                                    }}
+                                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors"
+                                >
+                                    Clear All Filters
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     <p className="text-gray-400 my-2 p-2">
                         <span>Data may take up to 6 hours to update.</span>
                     </p>
@@ -772,6 +1038,82 @@ export default function AdminDashboard() {
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* CSV Upload Modal */}
+            {showUploadModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={closeUploadModal}>
+                    <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl max-w-xl w-full" onClick={(e) => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="bg-linear-to-r from-green-600 to-green-700 px-6 py-4 rounded-t-xl border-b border-green-500/20">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-2xl">📄</span>
+                                    <h2 className="text-2xl font-bold text-white">Upload CSV</h2>
+                                </div>
+                                <button
+                                    onClick={closeUploadModal}
+                                    className="text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Body */}
+                        <div className="p-6 space-y-6">
+                            {/* File Input */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    Select CSV File
+                                </label>
+                                <input
+                                    type="file"
+                                    accept=".csv"
+                                    onChange={(e) => setUploadFile(e.target.files[0])}
+                                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-600 file:text-white hover:file:bg-green-700"
+                                />
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Upload a CSV file with participant data. Format: name, email, etc.
+                                </p>
+                            </div>
+
+                            {/* Message */}
+                            {uploadMessage && (
+                                <div className={`p-4 rounded-lg border-l-4 ${
+                                    uploadMessage.type === "success"
+                                        ? "bg-green-950/30 border-green-600"
+                                        : "bg-red-950/30 border-red-600"
+                                }`}>
+                                    <p className={`text-sm ${
+                                        uploadMessage.type === "success" ? "text-green-200" : "text-red-200"
+                                    }`}>
+                                        {uploadMessage.text}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Upload Button */}
+                            <button
+                                onClick={handleUploadCSV}
+                                disabled={uploadLoading || !uploadFile}
+                                className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-lg font-bold text-lg transition-colors disabled:bg-gray-700 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {uploadLoading ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                                        <span>Uploading...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>📤</span>
+                                        <span>Upload CSV</span>
+                                    </>
+                                )}
+                            </button>
                         </div>
                     </div>
                 </div>
