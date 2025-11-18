@@ -75,136 +75,130 @@ export default function AdminDashboard() {
     }, []);
 
     // Table columns definition
-    const columns = useMemo(
-        () => [
-            {
-                accessorKey: "rank",
-                header: "Rank",
-                enableHiding: true,
-                sortingFn: (rowA, rowB) => {
-                    const rankA = rowA.original.rank;
-                    const rankB = rowB.original.rank;
-                    
-                    // If both are null, they're equal
-                    if (rankA == null && rankB == null) return 0;
-                    // If only A is null, B comes first (A goes to bottom)
-                    if (rankA == null) return 1;
-                    // If only B is null, A comes first (B goes to bottom)
-                    if (rankB == null) return -1;
-                    // Both have values, sort normally
-                    return rankA - rankB;
-                },
-                // Hidden column - used only for sorting
-            },
-            {
-                accessorKey: "name",
-                header: "Name",
-                cell: ({ row }) => {
-                    const isCompleted = (row.original.completion_percentage ?? 0) === 100;
-                    return (
-                        <div className="font-semibold text-white flex items-center gap-2">
-                            {/* {isCompleted && <span className="text-xl">🏆</span>} */}
-                            <span>{row.original.name}</span>
-                        </div>
-                    );
-                },
-            },
-            {
-                accessorKey: "completed_badges",
-                header: "Badges",
-                cell: ({ row }) => {
-                    const isCompleted = (row.original.completion_percentage ?? 0) === 100;
-                    const isHigh = (row.original.completion_percentage ?? 0) >= 75;
-                    const isMedium = (row.original.completion_percentage ?? 0) >= 50;
+    const columns = useMemo(() => {
+        const cols = [];
 
+        // S.no (serial) - visible only to authenticated users
+        if (isAuthenticated) {
+            cols.push({
+                id: "sno",
+                header: "S.no",
+                cell: ({ row, table }) => {
+                    // Use the filtered/sorted row index from the table's row model
+                    const rows = table.getRowModel().rows;
+                    const currentIndex = rows.findIndex(r => r.id === row.id);
                     return (
-                        <div className="text-start font-mono">
-                            <span className={`font-bold ${isCompleted ? 'text-emerald-400' :
-                                isHigh ? 'text-cyan-400' :
-                                    isMedium ? 'text-amber-400' :
-                                        'text-gray-400'
-                                }`}>
-                                {row.original.completed_badges ?? 0}
-                            </span>
-                            <span className="text-gray-500 text-sm">/{row.original.total_badges ?? 0}</span>
-                        </div>
+                        <div className="text-gray-300 text-sm">{currentIndex + 1}</div>
                     );
                 },
-            },
-            {
-                accessorKey: "completion_percentage",
-                header: "Progress",
-                cell: ({ row }) => {
-                    const percentage = row.original.completion_percentage ?? 0;
-                    const isCompleted = percentage === 100;
-                    const isHigh = percentage >= 75;
-                    const isMedium = percentage >= 50;
+                enableHiding: false,
+            });
+        }
 
-                    return (
-                        <div className="text-start">
-                            <span className={`font-bold ${isCompleted ? 'text-emerald-400' :
-                                isHigh ? 'text-cyan-400' :
-                                    isMedium ? 'text-amber-400' :
-                                        'text-gray-400'
-                                }`}>
-                                {percentage}%
-                            </span>
-                        </div>
-                    );
-                },
+        // Rank (hidden, used for sorting)
+        cols.push({
+            accessorKey: "rank",
+            header: "Rank",
+            enableHiding: true,
+            sortingFn: (rowA, rowB) => {
+                const rankA = rowA.original.rank;
+                const rankB = rowB.original.rank;
+                if (rankA == null && rankB == null) return 0;
+                if (rankA == null) return 1;
+                if (rankB == null) return -1;
+                return rankA - rankB;
             },
-            ...(isAuthenticated ? [
-                {
-                    accessorKey: "access_code_redeemed",
-                    header: "Redeemed",
-                    cell: ({ row }) => (
-                        <div className="text-start">
-                            <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                row.original.access_code_redeemed
-                                    ? "bg-green-600 text-white"
-                                    : "bg-gray-600 text-gray-300"
-                            }`}>
-                                {row.original.access_code_redeemed ? "Yes" : "No"}
-                            </span>
-                        </div>
-                    ),
-                },
-                {
-                    accessorKey: "updated_at",
-                    header: "Last Update",
-                    cell: ({ row }) => {
-                        const date = row.original.updated_at 
-                            ? new Date(row.original.updated_at).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric',
-                                year: 'numeric'
-                            })
-                            : "Never";
-                        return (
-                            <div className="text-start text-gray-400 text-sm">
-                                {date}
-                            </div>
-                        );
-                    },
-                },
-            ] : []),
-            {
-                id: "actions",
-                header: "Actions",
+        });
+
+        // Name
+        cols.push({
+            accessorKey: "name",
+            header: "Name",
+            cell: ({ row }) => {
+                const isCompleted = (row.original.completion_percentage ?? 0) === 100;
+                return (
+                    <div className="font-semibold text-white flex items-center gap-2">
+                        <span>{row.original.name}</span>
+                    </div>
+                );
+            },
+        });
+
+        // Badges
+        cols.push({
+            accessorKey: "completed_badges",
+            header: "Badges",
+            cell: ({ row }) => {
+                const isCompleted = (row.original.completion_percentage ?? 0) === 100;
+                const isHigh = (row.original.completion_percentage ?? 0) >= 75;
+                const isMedium = (row.original.completion_percentage ?? 0) >= 50;
+                return (
+                    <div className="text-start font-mono">
+                        <span className={`font-bold ${isCompleted ? 'text-emerald-400' : isHigh ? 'text-cyan-400' : isMedium ? 'text-amber-400' : 'text-gray-400'}`}>
+                            {row.original.completed_badges ?? 0}
+                        </span>
+                        <span className="text-gray-500 text-sm">/{row.original.total_badges ?? 0}</span>
+                    </div>
+                );
+            },
+        });
+
+        // Progress
+        cols.push({
+            accessorKey: "completion_percentage",
+            header: "Progress",
+            cell: ({ row }) => {
+                const percentage = row.original.completion_percentage ?? 0;
+                const isCompleted = percentage === 100;
+                const isHigh = percentage >= 75;
+                const isMedium = percentage >= 50;
+                return (
+                    <div className="text-start">
+                        <span className={`font-bold ${isCompleted ? 'text-emerald-400' : isHigh ? 'text-cyan-400' : isMedium ? 'text-amber-400' : 'text-gray-400'}`}>
+                            {percentage}%
+                        </span>
+                    </div>
+                );
+            },
+        });
+
+        // Admin-only columns
+        if (isAuthenticated) {
+            cols.push({
+                accessorKey: "access_code_redeemed",
+                header: "Redeemed",
                 cell: ({ row }) => (
                     <div className="text-start">
-                        <button
-                            onClick={() => openModal(row.original.id)}
-                            className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
-                        >
-                            View
-                        </button>
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${row.original.access_code_redeemed ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-300'}`}>
+                            {row.original.access_code_redeemed ? 'Yes' : 'No'}
+                        </span>
                     </div>
                 ),
-            },
-        ],
-        [isAuthenticated]
-    );
+            });
+
+            cols.push({
+                accessorKey: "updated_at",
+                header: "Last Update",
+                cell: ({ row }) => {
+                    const date = row.original.updated_at ? new Date(row.original.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never';
+                    return <div className="text-start text-gray-400 text-sm">{date}</div>;
+                },
+            });
+        }
+
+        // Actions
+        cols.push({
+            id: 'actions',
+            header: 'Actions',
+            cell: ({ row }) => (
+                <div className="text-start">
+                    <button onClick={() => openModal(row.original.id)} className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors">View</button>
+                </div>
+            ),
+        });
+
+        return cols;
+    }, [isAuthenticated]);
 
     // Apply custom filters
     const filteredData = useMemo(() => {
@@ -303,7 +297,35 @@ export default function AdminDashboard() {
 
             // Handle participants response
             if (participantsRes.status === "fulfilled") {
-                setParticipants(participantsRes.value.data);
+                const raw = participantsRes.value.data || [];
+
+                // Map participants to ensure we have completed/total and percentage calculated
+                const mapped = raw.map((p) => {
+                    const badges = Array.isArray(p.badges) ? p.badges : [];
+
+                    // Determine total badges: prefer explicit total_badges if available
+                    const totalBadges = typeof p.total_badges === 'number' ? p.total_badges : badges.length;
+
+                    // Determine completed count: prefer counting badges array if present, otherwise use provided completed_badges
+                    let completedCount = 0;
+                    if (badges.length > 0) {
+                        completedCount = badges.filter((b) => b && (b.completed === true || b.done === true)).length;
+                    } else if (typeof p.completed_badges === 'number') {
+                        completedCount = p.completed_badges;
+                    }
+
+                    // Guard totalBadges to avoid division by zero
+                    const percentage = totalBadges > 0 ? Math.round((completedCount / totalBadges) * 100) : (typeof p.completion_percentage === 'number' ? p.completion_percentage : 0);
+
+                    return {
+                        ...p,
+                        completed_badges: completedCount,
+                        total_badges: totalBadges,
+                        completion_percentage: percentage,
+                    };
+                });
+
+                setParticipants(mapped);
             } else {
                 console.error("Failed to load participants:", participantsRes.reason);
                 setParticipants([]);
