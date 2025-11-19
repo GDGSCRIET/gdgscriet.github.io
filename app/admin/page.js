@@ -42,6 +42,7 @@ export default function AdminDashboard() {
     const [columnFilters, setColumnFilters] = useState([]);
     const [selectedParticipant, setSelectedParticipant] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [showProgressModal, setShowProgressModal] = useState(false);
 
     // Filter states
     const [showFilters, setShowFilters] = useState(false);
@@ -631,42 +632,67 @@ export default function AdminDashboard() {
 
                 {/* Live Completion Bar - For All Users */}
                 {participants.length > 0 && (
-                    <div className="bg-gradient-to-r from-purple-900/50 via-indigo-900/50 to-blue-900/50 border border-indigo-500/30 rounded-xl p-6 backdrop-blur-sm">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                                <div className="text-center">
-                                    <div className="text-5xl font-bold text-emerald-400">
+                    <>
+                        <div 
+                            onClick={() => setShowProgressModal(true)}
+                            className="cursor-pointer bg-gradient-to-r from-purple-900/50 via-indigo-900/50 to-blue-900/50 border border-indigo-500/30 rounded-xl p-4 backdrop-blur-sm hover:bg-indigo-900/30 transition-all mb-6"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-emerald-400 font-bold text-5xl">
                                         {participants.filter(p => p.completion_percentage === 100).length}
-                                    </div>
-                                    <div className="text-sm text-gray-400 mt-1">Completed</div>
-                                </div>
-                                <div className="text-gray-500 text-3xl">/</div>
-                                <div className="text-center">
-                                    <div className="text-5xl font-bold text-indigo-300">
+                                    </span>
+                                    {/* <span className="text-gray-400">/</span>
+                                    <span className="text-indigo-300 font-bold text-xl">
                                         {participants.length}
-                                    </div>
-                                    <div className="text-sm text-gray-400 mt-1">Total</div>
+                                    </span> */}
+                                    <span className="text-gray-400 ml-2">Completed</span>
                                 </div>
-                            </div>
-                            <div className="flex-1 w-full md:w-auto md:max-w-md">
-                                <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
-                                    <div 
-                                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500 flex items-center justify-center"
-                                        style={{ 
-                                            width: `${participants.length > 0 ? (participants.filter(p => p.completion_percentage === 100).length / participants.length * 100) : 0}%` 
-                                        }}
-                                    >
-                                        <span className="text-xs font-bold text-white drop-shadow-lg">
-                                            {participants.length > 0 ? Math.round(participants.filter(p => p.completion_percentage === 100).length / participants.length * 100) : 0}%
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="text-center text-xs text-gray-500 mt-2">
-                                    Live Completion Progress
-                                </div>
+                                <div className="text-xs text-indigo-400">Click for details</div>
                             </div>
                         </div>
-                    </div>
+
+                        <Dialog open={showProgressModal} onOpenChange={setShowProgressModal}>
+                            <DialogContent className="bg-gray-900 border-gray-800 text-white sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Live Completion Progress</DialogTitle>
+                                </DialogHeader>
+                                <div className="py-6">
+                                    <div className="flex flex-col items-center gap-6">
+                                        <div className="flex items-center gap-8">
+                                            <div className="text-center">
+                                                <div className="text-5xl font-bold text-emerald-400">
+                                                    {participants.filter(p => p.completion_percentage === 100).length}
+                                                </div>
+                                                <div className="text-sm text-gray-400 mt-1">Completed</div>
+                                            </div>
+                                            <div className="text-gray-500 text-3xl">/</div>
+                                            <div className="text-center">
+                                                <div className="text-5xl font-bold text-indigo-300">
+                                                    {participants.length}
+                                                </div>
+                                                <div className="text-sm text-gray-400 mt-1">Total</div>
+                                            </div>
+                                        </div>
+                                        <div className="w-full">
+                                            <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+                                                <div 
+                                                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500 flex items-center justify-center"
+                                                    style={{ 
+                                                        width: `${participants.length > 0 ? (participants.filter(p => p.completion_percentage === 100).length / participants.length * 100) : 0}%` 
+                                                    }}
+                                                >
+                                                    <span className="text-xs font-bold text-white drop-shadow-lg">
+                                                        {participants.length > 0 ? Math.round(participants.filter(p => p.completion_percentage === 100).length / participants.length * 100) : 0}%
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </>
                 )}
 
                 {/* Stats Cards - Admin Only */}
@@ -705,16 +731,19 @@ export default function AdminDashboard() {
                                 className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-gray-500"
                             />
                         </div>
-                        <button
+                        {isAuthenticated && (
+
+                            <button
                             onClick={() => setShowFilters(!showFilters)}
                             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                                 showFilters
-                                    ? "bg-indigo-600 text-white"
-                                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                            }`}
-                        >
+                                ? "bg-indigo-600 text-white"
+                                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                                }`}
+                                >
                             🔍 Filters
                         </button>
+                        )}
                         <div className="text-gray-400 text-sm font-medium">
                             {table.getFilteredRowModel().rows.length} participants
                         </div>
