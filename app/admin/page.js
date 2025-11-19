@@ -181,14 +181,22 @@ export default function AdminDashboard() {
                 header: "Completion Date",
                 cell: ({ row }) => {
                     const completionDate = row.original.completion_date || row.original.completed_at;
-                    const date = completionDate ? new Date(completionDate).toLocaleString('en-IN', { 
-                        timeZone: 'Asia/Kolkata',
+                    if (!completionDate) {
+                        const fallback = row.original.completion_percentage === 100 ? 'Recently' : '-';
+                        return <div className="text-start text-gray-400 text-sm">{fallback}</div>;
+                    }
+                    
+                    // Convert UTC to IST by adding 5 hours 30 minutes
+                    const utcDate = new Date(completionDate);
+                    const istDate = new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000));
+                    
+                    const date = istDate.toLocaleString('en-IN', { 
                         month: 'short', 
                         day: 'numeric', 
                         year: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit'
-                    }) : (row.original.completion_percentage === 100 ? 'Recently' : '-');
+                    });
                     return <div className="text-start text-gray-400 text-sm">{date}</div>;
                 },
             });
