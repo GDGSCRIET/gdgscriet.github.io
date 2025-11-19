@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api";
-import { FaSearch, FaRobot, FaPlay } from "react-icons/fa";
+import { FaSearch, FaRobot, FaPlay, FaFileExcel } from "react-icons/fa";
 import {
     useReactTable,
     getCoreRowModel,
@@ -487,6 +487,64 @@ export default function AdminDashboard() {
         setUploadMessage(null);
     }
 
+    // Export to Excel function
+    async function exportToExcel() {
+        try {
+            // Dynamically import xlsx to avoid SSR issues
+            const XLSX = await import('xlsx');
+            
+            // Prepare data for export
+            const exportData = participants.map((p, index) => ({
+                'S.No': index + 1,
+                'Rank': p.rank || 'N/A',
+                'Name': p.name || '',
+                'Email': p.email || '',
+                'Completed Badges': p.completed_badges || 0,
+                'Total Badges': p.total_badges || 0,
+                'Completion %': p.completion_percentage || 0,
+                'Bot Time Stamp %': p.completion_date || 0,
+                'Access Code Redeemed': p.access_code_redeemed ? 'Yes' : 'No',
+                // 'Last Updated': p.updated_at ? new Date(p.updated_at).toLocaleString('en-US', {
+                //     year: 'numeric',
+                //     month: 'sshort',
+                //     day: 'numeric',
+                //     hour: '2-digit',
+                //     minute: '2-digit'
+                // }) : 'Never',
+            }));
+
+            // Create worksheet
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            
+            // Set column widths
+            ws['!cols'] = [
+                { wch: 6 },  // S.No
+                { wch: 25 }, // Name
+                { wch: 30 }, // Email
+                { wch: 15 }, // Completed Badges
+                { wch: 12 }, // Total Badges
+                { wch: 12 }, // Completion %
+                { wch: 18 }, // Access Code Redeemed
+                { wch: 20 }, // Last Updated
+                { wch: 8 }   // Rank
+            ];
+
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Participants');
+
+            // Generate filename with timestamp
+            const timestamp = new Date().toISOString().split('T')[0];
+            const filename = `GDG_Participants_${timestamp}.xlsx`;
+
+            // Save file
+            XLSX.writeFile(wb, filename);
+        } catch (err) {
+            console.error('Export failed:', err);
+            alert('Failed to export data. Please try again.');
+        }
+    }
+
     function logout() {
         localStorage.removeItem("token");
         localStorage.removeItem("first_name");
@@ -515,6 +573,13 @@ export default function AdminDashboard() {
                                 >
                                     <span>📄</span>
                                     <span className="hidden sm:inline">Upload CSV</span>
+                                </button>
+                                <button
+                                    onClick={exportToExcel}
+                                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
+                                >
+                                    <FaFileExcel className="text-lg" />
+                                    <span className="hidden sm:inline">Export</span>
                                 </button>
                                 <button
                                     onClick={openBotModal}
