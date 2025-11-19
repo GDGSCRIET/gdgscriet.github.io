@@ -117,9 +117,20 @@ export default function AdminDashboard() {
             header: "Name",
             cell: ({ row }) => {
                 const isCompleted = (row.original.completion_percentage ?? 0) === 100;
+                
+                // Check for late completion
+                const completionDate = row.original.completion_date || row.original.completed_at;
+                let isLate = false;
+                if (completionDate && isCompleted) {
+                     const utcDate = new Date(completionDate);
+                     const deadline = new Date('2025-11-19T11:30:00Z'); // 5:00 PM IST
+                     isLate = utcDate > deadline;
+                }
+
                 return (
-                    <div className="font-semibold text-white flex items-center gap-2">
+                    <div className={`font-semibold flex items-center gap-2 ${isLate ? 'text-red-400' : 'text-white'}`}>
                         <span>{row.original.name}</span>
+                        {isLate && <span className="text-[10px] bg-red-900/50 text-red-300 px-1.5 py-0.5 rounded border border-red-800/50">Late</span>}
                     </div>
                 );
             },
@@ -191,6 +202,11 @@ export default function AdminDashboard() {
                     const utcDate = new Date(completionDate);
                     const istDate = new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000));
                     
+                    // Check if after deadline (19 Nov 2025, 5:00 PM IST)
+                    // 5:00 PM IST is 11:30 AM UTC
+                    const deadline = new Date('2025-11-19T11:30:00Z');
+                    const isLate = utcDate > deadline;
+
                     const date = istDate.toLocaleString('en-IN', { 
                         month: 'short', 
                         day: 'numeric', 
@@ -198,7 +214,12 @@ export default function AdminDashboard() {
                         hour: '2-digit',
                         minute: '2-digit'
                     });
-                    return <div className="text-start text-gray-400 text-sm">{date}</div>;
+                    return (
+                        <div className={`text-start text-sm ${isLate ? 'text-red-400 font-bold' : 'text-gray-400'}`}>
+                            {date}
+                            {isLate && <span className="ml-2 text-xs bg-red-900/50 text-red-300 px-1 rounded">Late</span>}
+                        </div>
+                    );
                 },
             });
         }
@@ -640,12 +661,12 @@ export default function AdminDashboard() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="text-emerald-400 font-bold text-5xl">
-                                        {participants.filter(p => p.completion_percentage === 100).length}
+                                        {participants.filter(p => {
+                                            const dateStr = p.completion_date || p.completed_at;
+                                            if (!dateStr) return p.completion_percentage === 100;
+                                            return p.completion_percentage === 100 && new Date(dateStr) <= new Date('2025-11-19T11:30:00Z');
+                                        }).length}
                                     </span>
-                                    {/* <span className="text-gray-400">/</span>
-                                    <span className="text-indigo-300 font-bold text-xl">
-                                        {participants.length}
-                                    </span> */}
                                     <span className="text-gray-400 ml-2">Completed</span>
                                 </div>
                                 <div className="text-xs text-indigo-400">Click for details</div>
@@ -662,7 +683,11 @@ export default function AdminDashboard() {
                                         <div className="flex items-center gap-8">
                                             <div className="text-center">
                                                 <div className="text-5xl font-bold text-emerald-400">
-                                                    {participants.filter(p => p.completion_percentage === 100).length}
+                                                    {participants.filter(p => {
+                                                        const dateStr = p.completion_date || p.completed_at;
+                                                        if (!dateStr) return p.completion_percentage === 100;
+                                                        return p.completion_percentage === 100 && new Date(dateStr) <= new Date('2025-11-19T11:30:00Z');
+                                                    }).length}
                                                 </div>
                                                 <div className="text-sm text-gray-400 mt-1">Completed</div>
                                             </div>
@@ -679,11 +704,19 @@ export default function AdminDashboard() {
                                                 <div 
                                                     className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500 flex items-center justify-center"
                                                     style={{ 
-                                                        width: `${participants.length > 0 ? (participants.filter(p => p.completion_percentage === 100).length / participants.length * 100) : 0}%` 
+                                                        width: `${participants.length > 0 ? (participants.filter(p => {
+                                                            const dateStr = p.completion_date || p.completed_at;
+                                                            if (!dateStr) return p.completion_percentage === 100;
+                                                            return p.completion_percentage === 100 && new Date(dateStr) <= new Date('2025-11-19T11:30:00Z');
+                                                        }).length / participants.length * 100) : 0}%` 
                                                     }}
                                                 >
                                                     <span className="text-xs font-bold text-white drop-shadow-lg">
-                                                        {participants.length > 0 ? Math.round(participants.filter(p => p.completion_percentage === 100).length / participants.length * 100) : 0}%
+                                                        {participants.length > 0 ? Math.round(participants.filter(p => {
+                                                            const dateStr = p.completion_date || p.completed_at;
+                                                            if (!dateStr) return p.completion_percentage === 100;
+                                                            return p.completion_percentage === 100 && new Date(dateStr) <= new Date('2025-11-19T11:30:00Z');
+                                                        }).length / participants.length * 100) : 0}%
                                                     </span>
                                                 </div>
                                             </div>
