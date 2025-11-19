@@ -177,10 +177,18 @@ export default function AdminDashboard() {
             });
 
             cols.push({
-                accessorKey: "updated_at",
-                header: "Last Update",
+                accessorKey: "completion_date",
+                header: "Completion Date",
                 cell: ({ row }) => {
-                    const date = row.original.updated_at ? new Date(row.original.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never';
+                    const completionDate = row.original.completion_date || row.original.completed_at;
+                    const date = completionDate ? new Date(completionDate).toLocaleString('en-IN', { 
+                        timeZone: 'Asia/Kolkata',
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : (row.original.completion_percentage === 100 ? 'Recently' : '-');
                     return <div className="text-start text-gray-400 text-sm">{date}</div>;
                 },
             });
@@ -610,6 +618,46 @@ export default function AdminDashboard() {
                 {error && (
                     <div className="bg-red-950/50 border border-red-800 text-red-200 px-4 py-3 rounded-lg">
                         {error}
+                    </div>
+                )}
+
+                {/* Live Completion Bar - For All Users */}
+                {participants.length > 0 && (
+                    <div className="bg-gradient-to-r from-purple-900/50 via-indigo-900/50 to-blue-900/50 border border-indigo-500/30 rounded-xl p-6 backdrop-blur-sm">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="text-center">
+                                    <div className="text-5xl font-bold text-emerald-400">
+                                        {participants.filter(p => p.completion_percentage === 100).length}
+                                    </div>
+                                    <div className="text-sm text-gray-400 mt-1">Completed</div>
+                                </div>
+                                <div className="text-gray-500 text-3xl">/</div>
+                                <div className="text-center">
+                                    <div className="text-5xl font-bold text-indigo-300">
+                                        {participants.length}
+                                    </div>
+                                    <div className="text-sm text-gray-400 mt-1">Total</div>
+                                </div>
+                            </div>
+                            <div className="flex-1 w-full md:w-auto md:max-w-md">
+                                <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+                                    <div 
+                                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500 flex items-center justify-center"
+                                        style={{ 
+                                            width: `${participants.length > 0 ? (participants.filter(p => p.completion_percentage === 100).length / participants.length * 100) : 0}%` 
+                                        }}
+                                    >
+                                        <span className="text-xs font-bold text-white drop-shadow-lg">
+                                            {participants.length > 0 ? Math.round(participants.filter(p => p.completion_percentage === 100).length / participants.length * 100) : 0}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="text-center text-xs text-gray-500 mt-2">
+                                    Live Completion Progress
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
