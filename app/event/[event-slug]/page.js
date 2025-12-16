@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FaClock, FaMapMarkerAlt, FaCalendar } from 'react-icons/fa';
 import eventsData from '@/data/events';
-import EventRedirect from '@/components/EventRedirect';
+import EventFooter from '@/components/EventFooter';
 
 export async function generateStaticParams() {
   return eventsData.map((event) => ({
@@ -34,9 +34,9 @@ export default async function EventPage({ params }) {
   }) : null;
 
   return (
-    <div className="min-h-screen py-12 px-4">
-      <EventRedirect expiryTime={event.expiryTime} redirectUrl={event.redirectUrl} />
-      <div className="max-w-5xl mx-auto">
+    <div className="relative min-h-screen py-12 px-4 pb-32">
+
+      <div className="max-w-5xl mx-auto relative">
         {/* Header Image */}
         <div className="relative w-full mb-8 shadow-2xl rounded-2xl overflow-hidden">
           <img
@@ -74,18 +74,6 @@ export default async function EventPage({ params }) {
                 <span className="font-medium">{event.location}</span>
               </div>
             )}
-          </div>
-
-          {/* CTA Button */}
-          <div className="flex justify-start my-5">
-            <Link
-              href={event.ctaLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-black p-2 rounded text-lg font-bold hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-            >
-              {event.cta}
-            </Link>
           </div>
 
           {/* Description */}
@@ -135,6 +123,13 @@ export default async function EventPage({ params }) {
 
 
         </div>
+        
+        <EventFooter
+          cta={event.cta}
+          ctaLink={event.ctaLink}
+          expiryTime={event.expiryTime}
+          redirectUrl={event.redirectUrl}
+        />
       </div>
     </div>
   );
