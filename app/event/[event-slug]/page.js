@@ -56,17 +56,23 @@ export default async function EventPage({ params }) {
     redirect('/');
   }
 
-  const formattedDate = event.dateDisplay || (event.time ? new Date(event.time).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }) : null);
+  const formattedDate = event.time
+    ? new Date(event.time).toLocaleDateString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : event.dateDisplay;
 
-  const formattedTime = event.time ? new Date(event.time).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }) : null;
+  const formattedTime = event.time
+    ? new Date(event.time).toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : null;
 
   return (
     <div className={`relative min-h-screen py-12 px-4 pb-32 ${spaceGrotesk.className}`}>

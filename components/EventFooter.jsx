@@ -20,7 +20,9 @@ export default function EventFooter({
 
   useEffect(() => {
     const checkStatus = () => {
-      const now = new Date();
+      const now = new Date(
+        new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })
+      );
       
       // Check Expiry first (highest priority)
       if (expiryTime && now > new Date(expiryTime)) {
