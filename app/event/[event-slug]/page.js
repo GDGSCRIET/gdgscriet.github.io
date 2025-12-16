@@ -28,6 +28,7 @@ export async function generateMetadata({ params }) {
   const plainDescription = event.description.replace(/<[^>]*>?/gm, '').substring(0, 160);
 
   return {
+    metadataBase: new URL('https://gdgscriet.github.io'),
     title: event.heading,
     description: plainDescription,
     openGraph: {
