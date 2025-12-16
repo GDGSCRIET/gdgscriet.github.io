@@ -4,11 +4,45 @@ import Link from 'next/link';
 import { FaClock, FaMapMarkerAlt, FaCalendar } from 'react-icons/fa';
 import eventsData from '@/data/events';
 import EventFooter from '@/components/EventFooter';
+import { Space_Grotesk } from 'next/font/google';
+
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] });
 
 export async function generateStaticParams() {
   return eventsData.map((event) => ({
     'event-slug': event.slug,
   }));
+}
+
+export async function generateMetadata({ params }) {
+  const { 'event-slug': eventSlug } = await params;
+  const event = eventsData.find((e) => e.slug === eventSlug);
+
+  if (!event) {
+    return {
+      title: 'Event Not Found',
+    };
+  }
+
+  // Strip HTML tags from description for metadata
+  const plainDescription = event.description.replace(/<[^>]*>?/gm, '').substring(0, 160);
+
+  return {
+    title: event.heading,
+    description: plainDescription,
+    openGraph: {
+      title: event.heading,
+      description: plainDescription,
+      images: [
+        {
+          url: event.headingImage,
+          width: 1200,
+          height: 630,
+          alt: event.heading,
+        },
+      ],
+    },
+  };
 }
 
 export default async function EventPage({ params }) {
@@ -34,7 +68,7 @@ export default async function EventPage({ params }) {
   }) : null;
 
   return (
-    <div className="relative min-h-screen py-12 px-4 pb-32">
+    <div className={`relative min-h-screen py-12 px-4 pb-32 ${spaceGrotesk.className}`}>
 
       <div className="max-w-5xl mx-auto relative">
         {/* Header Image */}
