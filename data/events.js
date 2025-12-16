@@ -19,6 +19,10 @@ Take on challenges that inspire you, leverage Google technologies to power your 
     "time": "2025-12-18T17:00:00+05:30",
     "expiryTime": "2025-12-18T18:30:00+05:30",
     "redirectUrl": "https://vision.hack2skill.com/event/gdgoc-25-scriethacks2025",
+    "liveTime": "2025-12-18T17:00:00+05:30", 
+    "liveUrl": "https://gdg.community.dev/e/mwkkvu/", 
+    "liveCta": "Join Now", 
+    "autoRedirectOnLive": true,
     "dateDisplay": "18th December",
     "location": "Online Event",
     "contact": {
@@ -26,12 +30,6 @@ Take on challenges that inspire you, leverage Google technologies to power your 
       "email": "gdg.scriet@gmail.com",
       // "phone": "+91 1234567890"
     },
-    // "highlights": [
-    //   "Expert speakers from Google",
-    //   "Hands-on workshops",
-    //   "Networking sessions",
-    //   "Exciting prizes and giveaways"
-    // ]
   },
 
 ]

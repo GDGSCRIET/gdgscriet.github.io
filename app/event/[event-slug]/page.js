@@ -123,12 +123,16 @@ export default async function EventPage({ params }) {
 
 
         </div>
-        
+
         <EventFooter
           cta={event.cta}
           ctaLink={event.ctaLink}
           expiryTime={event.expiryTime}
           redirectUrl={event.redirectUrl}
+          liveTime={event.liveTime}
+          liveUrl={event.liveUrl}
+          liveCta={event.liveCta}
+          autoRedirectOnLive={event.autoRedirectOnLive}
         />
       </div>
     </div>

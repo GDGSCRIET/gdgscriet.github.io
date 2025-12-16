@@ -1,8 +1,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+// import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LetterGlitch from "@/components/LetterGlitch";
+import { Navbar } from "@/components/ui/resizable-navbar";
+import Header from "@/components/Header";
 // import PillNav from "@/components/PillNav";
 
 const geistSans = Geist({
@@ -26,7 +28,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <div className="relative overflow-hidden bg-black">
+        <div className="relative bg-black">
           {/* <div className="-z-10 fixed overflow-hidden h-screen w-screen top-0 left-0">
           <LetterGlitch
           glitchSpeed={50}
@@ -36,8 +38,10 @@ export default function RootLayout({ children }) {
           />
           </div> */}
          
-          <Navbar />
-          <main className="flex-grow pt-20">
+          {/* <Navbar /> */}
+          <Header/>
+          <div className="h-14"></div>
+          <main className="flex-grow">
             {children}
           </main>
           <Footer />
