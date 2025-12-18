@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 
 export default function EventFooter({ 
   cta, 
-  ctaLink, 
+  ctaLink,
+  secondaryCta,
+  secondaryCtaLink, 
   expiryTime, 
   redirectUrl, 
   liveTime, 
@@ -105,14 +107,27 @@ export default function EventFooter({
           {message}
         </div>
       )}
-      <Link
-        href={activeLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="bg-gradient-to-r from-white to-gray-300 text-black px-6 py-2 rounded text-lg font-bold hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-      >
-        {activeCta}
-      </Link>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Link
+          href={activeLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-gradient-to-r from-white to-gray-300 text-black px-6 py-2 rounded text-lg font-bold hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        >
+          {activeCta}
+        </Link>
+
+        {/* {secondaryCtaLink && secondaryCta && (
+          <Link
+            href={secondaryCtaLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-white text-white px-6 py-2 rounded text-lg font-bold hover:shadow-xl transition-all duration-300 transform hover:scale-105 border "
+          >
+            {secondaryCta}
+          </Link>
+        )} */}
+      </div>
     </div>
   );
 }

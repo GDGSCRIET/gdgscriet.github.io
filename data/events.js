@@ -14,8 +14,10 @@ Want to explore full hackathon details, timelines, and registration?
 
 Take on challenges that inspire you, leverage Google technologies to power your solutions, and join a community of innovators ready to make a difference. Your contribution matters — and this is the place to show it!`,
     "headingImage": "/events/TechSprint AP.png",
-    "cta": "Register Now",
+    "cta": "Register",
     "ctaLink": "https://gdg.community.dev/e/mwkkvu/",
+    "secondaryCta": "Hackathon",
+    "secondaryCtaLink": "https://vision.hack2skill.com/event/gdgoc-25-scriethacks2025",
     "time": "2025-12-18T20:00:00+05:30",
     "expiryTime": "2025-12-18T21:30:00+05:30",
     "redirectUrl": "https://vision.hack2skill.com/event/gdgoc-25-scriethacks2025",

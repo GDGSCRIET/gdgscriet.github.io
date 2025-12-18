@@ -168,6 +168,8 @@ export default async function EventPage({ params }) {
         <EventFooter
           cta={event.cta}
           ctaLink={event.ctaLink}
+          secondaryCta={event.secondaryCta}
+          secondaryCtaLink={event.secondaryCtaLink}
           expiryTime={event.expiryTime}
           redirectUrl={event.redirectUrl}
           liveTime={event.liveTime}
