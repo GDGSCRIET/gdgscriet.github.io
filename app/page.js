@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FaWhatsapp, FaInstagram, FaLinkedin } from 'react-icons/fa';
 import { HiUserGroup } from 'react-icons/hi';
 import { Space_Grotesk } from 'next/font/google';
+import { GridScan } from '@/components/GridScan';
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] });
 
@@ -39,7 +40,10 @@ export default function Home() {
       <div className="max-w-4xl w-full text-center rounded">
         {/* Hero Section */}
         {/* Hero Section */}
-        <div className="border-y border-white/10 mx-auto max-w-4xl py-12 backdrop-blur-sm">
+
+        <div className="relative border-y border-white/10 mx-auto max-w-4xl py-12 backdrop-blur-sm">
+
+
           <div className="space-y-6 px-8">
 
             {/* Main Heading */}
@@ -60,11 +64,26 @@ export default function Home() {
             </p>
 
           </div>
+
         </div>
 
 
-        <h2 className="p-2 mb-8 text-2xl border-y border-white/10 md:text-4xl font-semibold text-white leading-tight">Live Events</h2>
-        <div  className='px-6'>
+        <h2 className="p-2 text-2xl border-y border-white/10 md:text-4xl font-semibold text-white leading-tight">Live Events</h2>
+        <div className='relative px-6 z-10 py-8'>
+          <div className='h-full w-full absolute top-0 left-0 -z-10'>
+            <GridScan
+              sensitivity={0.55}
+              lineThickness={1}
+              linesColor="#FF9FFC"
+              gridScale={0.1}
+              scanColor="#0C1659"
+              scanOpacity={0.4}
+              enablePost
+              bloomIntensity={0.6}
+              chromaticAberration={0.002}
+              noiseIntensity={0.01}
+            />
+          </div>
           <Link
             href="/event/techsprint2025"
             className="
