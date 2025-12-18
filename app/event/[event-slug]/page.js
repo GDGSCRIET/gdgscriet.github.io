@@ -77,7 +77,7 @@ export default async function EventPage({ params }) {
   return (
     <div className={`relative min-h-screen py-12 px-4 pb-32 ${spaceGrotesk.className}`}>
 
-      <div className="max-w-5xl mx-auto relative">
+      <div className="max-w-3xl mx-auto relative">
         {/* Header Image */}
         <div className="relative w-full mb-8 shadow-2xl rounded-2xl overflow-hidden">
           <img

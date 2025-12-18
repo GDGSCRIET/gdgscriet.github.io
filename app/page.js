@@ -2,6 +2,9 @@ import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { FaWhatsapp, FaInstagram, FaLinkedin } from 'react-icons/fa';
 import { HiUserGroup } from 'react-icons/hi';
+import { Space_Grotesk } from 'next/font/google';
+
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] });
 
 export default function Home() {
   const socialLinks = [
@@ -32,40 +35,59 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 group">
-      <div className="max-w-4xl w-full text-center space-y-12">
+    <div className={`flex min-h-[calc(100vh-4rem)] items-center justify-center group ${spaceGrotesk.className}`}>
+      <div className="max-w-4xl w-full text-center rounded">
         {/* Hero Section */}
-        <div className="space-y-6">
-          <h1 className="text-5xl md:text-7xl font-bold text-white dark:text-white">
-            Welcome to <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">GDG on Campus SCRIET</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-200 dark:text-gray-300 max-w-2xl mx-auto">
-            Building a community of passionate developers and tech enthusiasts
-          </p>
+        {/* Hero Section */}
+        <div className="border-y border-white/10 mx-auto max-w-4xl py-12 backdrop-blur-sm">
+          <div className="space-y-6 px-8">
+
+            {/* Main Heading */}
+            <h1 className="text-4xl md:text-6xl font-semibold text-white leading-tight">
+
+              <span className="font-bold">
+                GDG on Campus SCRIET
+              </span>
+            </h1>
+
+            {/* Divider */}
+            <div className="mx-auto h-px w-24 bg-white/30" />
+
+            {/* Subtitle */}
+            <p className="text-base md:text-lg text-gray-300 max-w-xl mx-auto leading-relaxed">
+              A student-led developer community focused on learning, collaboration,
+              and building real-world technology.
+            </p>
+
+          </div>
         </div>
-        <Link
-          href="/event/techsprint2025"
-          className="
+
+
+        <h2 className="p-2 mb-8 text-2xl border-y border-white/10 md:text-4xl font-semibold text-white leading-tight">Live Events</h2>
+
+          <Link
+            href="/event/techsprint2025"
+            className="
           group block max-w-sm mx-auto
           bg-blue-900 rounded-3xl
           shadow-sm transition-all duration-300
           hover:-translate-y-1 hover:shadow-xl
       ">
-          <div className="relative max-w-sm mx-auto w-full shadow-2xl rounded-3xl overflow-hidden">
-            <img
-              src={"/events/TechSprint AP.png"}
+            <div className="relative max-w-sm mx-auto w-full shadow-2xl rounded-3xl overflow-hidden">
+              <img
+                src={"/events/TechSprint AP.png"}
 
-              className="transition-all duration-300 w-full h-auto"
-            />
-          </div>
+                className="transition-all duration-300 w-full h-auto"
+              />
+            </div>
 
-          <div className='group-hover:text-blue-200 font-bold py-2 text-xl text-white flex justify-center items-center gap-2'>Register Now <ArrowRight /></div>
+            <div className='group-hover:text-blue-200 font-bold py-2 text-xl text-white flex justify-center items-center gap-2'>Register Now <ArrowRight /></div>
 
 
-        </Link>
+          </Link>
 
-        {/* Social Links */}
-        {/* <div className="mx-auto flex flex-wrap items-center justify-center gap-4">
+          {/* Social Links */}
+          {/* <div className="mx-auto flex flex-wrap items-center justify-center gap-4">
           {socialLinks.map((social) => {
             const Icon = social.icon;
             return (
