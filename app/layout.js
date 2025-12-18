@@ -26,9 +26,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-black antialiased min-h-screen flex flex-col`}
       >
-        <div className="relative bg-black">
+        <div className="relative bg-black border-r border-white/10 border-l max-w-4xl w-full mx-auto">
           {/* <div className="-z-10 fixed overflow-hidden h-screen w-screen top-0 left-0">
           <LetterGlitch
           glitchSpeed={50}
@@ -37,15 +37,17 @@ export default function RootLayout({ children }) {
           smooth={true}
           />
           </div> */}
-         
+
           {/* <Navbar /> */}
-          <Header/>
+          <Header />
           <div className="h-14"></div>
-          <main className="flex-grow">
+          <main className="flex-grow border-white/20">
             {children}
           </main>
-          <Footer />
+
+
         </div>
+        <Footer />
       </body>
     </html>
   );
