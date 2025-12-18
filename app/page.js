@@ -64,7 +64,7 @@ export default function Home() {
 
 
         <h2 className="p-2 mb-8 text-2xl border-y border-white/10 md:text-4xl font-semibold text-white leading-tight">Live Events</h2>
-
+        <div  className='px-6'>
           <Link
             href="/event/techsprint2025"
             className="
@@ -85,9 +85,9 @@ export default function Home() {
 
 
           </Link>
-
-          {/* Social Links */}
-          {/* <div className="mx-auto flex flex-wrap items-center justify-center gap-4">
+        </div>
+        {/* Social Links */}
+        {/* <div className="mx-auto flex flex-wrap items-center justify-center gap-4">
           {socialLinks.map((social) => {
             const Icon = social.icon;
             return (
