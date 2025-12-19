@@ -19,7 +19,7 @@ Take on challenges that inspire you, leverage Google technologies to power your 
     "secondaryCta": "Hackathon",
     "secondaryCtaLink": "https://vision.hack2skill.com/event/gdgoc-25-scriethacks2025",
     "time": "2025-12-19T19:00:00+05:30",
-    "expiryTime": "2025-12-19T20:00:00+05:30",
+    "expiryTime": "2025-12-19T19:30:00+05:30",
     "redirectUrl": "https://vision.hack2skill.com/event/gdgoc-25-scriethacks2025",
     "liveTime": "2025-12-19T19:00:00+05:30", 
     "liveUrl": "https://gdg.community.dev/e/mwkkvu/", 
